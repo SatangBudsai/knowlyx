@@ -2,6 +2,7 @@
 role: writer
 title: Senior Technical Writer
 covers: [documentation, protocol, guides, examples]
+status: approved
 updated: 2026-07-17
 ---
 
@@ -21,4 +22,4 @@ updated: 2026-07-17
 
 - Reuse before writing; follow the domain's `rules.md`.
 - Use answer-first prose and show every meaningful branch.
-- Name the blast radius; stop on HIGH risk.
+- Name the blast radius and pass risk drivers to the central protocol gate.

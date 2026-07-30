@@ -31,11 +31,12 @@ the ceiling once in the intent block.
 
 Open `agents/sage/roles/role-qa.md`:
 
-- **Found** → read and adopt. Output: `Role: qa [loaded]`
-- **Missing** → create it (persona: loves finding the input that breaks the code;
-  good at boundary/equivalence analysis, choosing the smallest set of tests that
-  covers the most behaviour, testing contracts not internals), output:
-  `Role: qa [created]`
+- **Found** → read it; adopt when `status: approved`, use as advisory when
+  `status: proposed`. Output the matching loaded/proposed role line.
+- **Missing** → create it with `status: proposed` (finds the input that breaks
+  the code; uses boundary/equivalence analysis, chooses the smallest set of
+  tests that covers the most behaviour, and tests contracts not internals),
+  output: `Role: qa [created · proposed]`
 
 > **Multi-repo:** anchor knowledge (`agents/sage/`) to the repo that owns the
 > code under test. State it once in the intent block.
@@ -84,7 +85,7 @@ enumerate:
 - **Contract, not internals** — assert on observable outputs and interactions,
   not private fields. Refactors that preserve behaviour must not break the test.
 
-Then output the intent block and wait for `ask`/`reject`:
+Then output the intent block and apply the central verdict:
 
 ```text
 Repo    : <repo-root>
@@ -97,8 +98,11 @@ Mocks   : <deps to stub: network/db/clock/random/…>
 Risk    : LOW | MEDIUM | HIGH · confidence:<low|medium|high>
 Drivers : <risk driver whose behavior these tests control>
 Evidence: <required control → test case/command, or "ordinary behavior coverage">
-Decision: proceed | ask | reject
+Decision: proceed | warn | ask | reject
 ```
+
+`proceed|warn` continues directly. `ask|reject` returns to the human before the
+affected mutation. Do not add a test-specific approval checkpoint.
 
 ---
 
@@ -192,4 +196,6 @@ Any real defects the tests surfaced in the target (or "none").
 ──────────────────────────────────────────────────
 ```
 
-Then stop.
+When invoked by an active `/sage` run, return the test evidence to the parent
+and continue with remaining validation/docs work. A standalone invocation prints
+the summary and returns because no parent run exists.

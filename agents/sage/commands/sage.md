@@ -20,8 +20,8 @@ For code-changing tasks, Steps 1-5 are mandatory. For pure questions, advice, ex
 
 `/sage` has two modes:
 
-- `auto` — the agent decides which steps apply, shows the full checklist with recommendations, and proceeds without asking for checklist input.
-- `ask` — the agent shows the full checklist every time and waits for the human to choose.
+- `auto` — the agent decides which steps apply, shows the full checklist with recommendations, and proceeds without opening a picker.
+- `ask` — the agent shows the full checklist every time and uses the best structured picker the current environment exposes.
 
 Do not use the old names `smart` or `always` in new config.
 
@@ -42,7 +42,7 @@ Default config:
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "mode": "auto",
   "checklist": {
     "auto-switch-model": true,
@@ -50,6 +50,13 @@ Default config:
     "unit-test": true,
     "e2e-test": false,
     "security-review": false
+  },
+  "interaction": {
+    "runPolicy": "until-gate",
+    "questionPolicy": "batch-independent",
+    "maxQuestionsPerCheckpoint": 3,
+    "autoDecideReversible": true,
+    "continueAfterHandoff": true
   }
 }
 ```
@@ -57,10 +64,23 @@ Default config:
 Config storage rules:
 
 - Read `.sage-local.json` from the active repo root.
-- Create it if it does not exist; migrate old `askMode` to `mode` first.
+- Create it if it does not exist; migrate old `askMode` to `mode`, then add
+  version 3 interaction defaults without replacing unknown fields.
 - Add `.sage-local.json` to `.gitignore` if missing.
 - Preserve unknown fields when rewriting config.
 - Never store per-machine preferences in committed project files.
+
+`mode` controls only checklist selection. `interaction.runPolicy` controls
+continuation:
+
+- `until-gate` — run every unblocked frontier wave and consume child handoffs
+  until a material gate or true completion.
+- `strict` — return at command checkpoints; safety gates remain unchanged.
+
+`questionPolicy: "batch-independent"` combines at most
+`maxQuestionsPerCheckpoint` independent decisions. Dependent decisions stay
+one-at-a-time. `autoDecideReversible` applies only to internal, reversible
+choices; it never applies to public contracts, trust boundaries, or risk gates.
 
 ---
 
@@ -94,9 +114,14 @@ A request **is a code request** when it changes any of the following: source cod
 
 ### Step 0b — read and normalize config
 
-Read `.sage-local.json` at the active repo root. If it contains the old `askMode` field, normalize it: `askMode: "smart"` → `mode: "auto"`; `askMode: "always"` → `mode: "ask"` (set `version: 2`, preserve unknown fields, write it back).
+Read `.sage-local.json` at the active repo root. If it contains the old
+`askMode` field, normalize it: `askMode: "smart"` → `mode: "auto"`;
+`askMode: "always"` → `mode: "ask"`. For any version before 3, preserve
+`mode`, `checklist`, and unknown fields; add the version 3 `interaction`
+defaults and set `version: 3`.
 
-If config is missing, create the default config with `mode: "auto"`. If `.gitignore` does not include `.sage-local.json`, add it.
+If config is missing, create the version 3 default config with `mode: "auto"`.
+If `.gitignore` does not include `.sage-local.json`, add it.
 
 ---
 
@@ -159,7 +184,11 @@ Do not add a sixth option. Do not add `None`. Do not add `just answer`. Pure que
 For each of the five choices, produce a status (`recommended` or `not recommended`) and a one-line reason tied to the detected signals.
 
 - **auto-switch-model** — recommend when model/reasoning selection is available and the task is non-trivial or benefits from different tiers across phases. Not recommended when the user pinned a model, there is no model selection, or the edit is fully mechanical. Keep it visible either way.
-- **plan-flow** — recommend for `logic`, `multi-file`, `backend-api`, `database`, `auth-security`, `infra-devops`, `mobile-desktop`, `data-ml`, `performance`, `bug-investigation`, `dependency`, `generated-code`, `public-contract`, or meaningful uncertainty. Not for fully specified mechanical or tiny docs-only edits.
+- **plan-flow** — recommend when implementation needs an end-to-end design
+  across a journey/trust boundary, changes a public contract or schema, touches
+  auth/payment ownership, or has real architecture uncertainty. Do not recommend
+  it merely because a task is `logic`, `multi-file`, a routine bug fix, or a
+  dependency change. Not for fully specified mechanical or tiny docs-only edits.
 - **unit-test** — recommend when the change affects logic, validation, algorithms, parsing, data transforms, API behavior, DB queries, permissions, jobs, CLI output, service boundaries, bug fixes, or regression-prone behavior. Not for purely mechanical, visual-copy, or docs-only changes (unless the repo has doc tests that must compile).
 - **e2e-test** — recommend when the change affects an observable flow across boundaries (frontend/mobile/desktop journey, API request/response, CLI behavior, migration applied through the app, auth/session, checkout/payment, upload/download, queue/job, deploy/infra workflow, performance path, generated client/server contract). Not for isolated pure logic with adequate unit coverage and no external flow.
 - **security-review** — recommend when the change touches or may expose authn/authz, roles/permissions, sessions/cookies/JWT/OAuth/API keys, secrets/env, PII/money/billing, uploads/downloads/paths/deserialization/UGC, SQL/NoSQL/shell/template/SSRF, dependency upgrades, infra/CI/containers/networking/CORS/CSP, logging of sensitive data, or public APIs/webhooks. Not for isolated mechanical edits, pure styling, or docs-only with no sensitive content.
@@ -175,7 +204,11 @@ control.
 
 ### Step 0f — selection behavior by mode
 
-**Mode `auto`:** detect signals → show the full checklist with `recommended`/`not recommended` labels → enable all recommended choices → do not ask about the checklist → continue. This mode never bypasses a HIGH-risk gate, genuine HITL decision, destructive approval, or matched `block` rule.
+**Mode `auto`:** detect signals → show the full checklist with
+`recommended`/`not recommended` labels → enable all recommended choices → do
+not open any picker or ask about the checklist → continue. This mode never
+bypasses a HIGH-risk gate, genuine HITL decision, destructive approval, or
+matched `block` rule.
 
 ```text
 Checklist · mode:auto
@@ -187,12 +220,23 @@ Checklist · mode:auto
 Validation: required. Docs: update only if behavior, API, setup, or public usage changed.
 ```
 
-**Mode `ask`:** detect signals → show the full checklist with labels → wait for the human → persist the selected checklist as defaults → continue only after they answer.
+**Mode `ask`:** detect signals → show all five labels/reasons → use the best
+picker capability callable in the current session → persist the selected
+checklist as defaults → continue after the answer. Never infer a picker from a
+provider name.
 
-Preferred structured picker, else Markdown fallback (numbers, e.g. `1,2,3`):
+1. Native multi-select available → show the five locked choices as checkboxes.
+2. Structured single-select only → offer `Run recommended` (recommended),
+   `Use saved defaults`, or `Customize`. For `Customize`, ask on/off toggles in
+   batches supported by the tool.
+3. No structured input → accept `recommended`, `defaults`, or only exceptions
+   such as `-e2e +security`. Accept numeric replies for backward compatibility,
+   but do not make them the primary instruction.
+
+The full checklist remains visible before any compact picker:
 
 ```text
-Task: <task in one line>. Which /sage steps should run?
+Task: <task in one line>. Checklist recommendations:
 
 1. auto-switch-model — recommended/not recommended: <reason>
 2. plan-flow — recommended/not recommended: <reason>
@@ -201,7 +245,9 @@ Task: <task in one line>. Which /sage steps should run?
 5. security-review — recommended/not recommended: <reason>
 ```
 
-If the environment is headless and cannot ask, behave like `auto` mode and state that prompting is unavailable.
+If the environment is headless and cannot ask, behave like `auto` mode and state
+that prompting is unavailable. A Markdown protocol cannot create a native
+checkbox when the host does not expose one.
 
 ---
 
@@ -261,7 +307,12 @@ Pick the expert lens the task needs; do not default to `dev`. Roles may hand off
 
 `architect` · `fullstack` · `frontend` · `backend` · `mobile` · `desktop` · `cli` · `database` · `data` · `ml` · `infra` · `devops` · `security` · `qa` · `debugger` · `performance` · `writer` — or any lens the task implies.
 
-Before each phase, load `agents/sage/roles/role-<lens>.md`; if missing, create it in the **`AGENTS.md` §2 role format** (Expertise + Pitfalls + How I work — concrete, not a motivational bio). Output `Role: <lens> [loaded|created]`, and on handoff `Role: <next> [loaded] — handoff from <prev>`.
+Load one primary `agents/sage/roles/role-<lens>.md`; hand off only when the next
+phase has materially different failure modes. Follow **`AGENTS.md` §1.1/§2**:
+approved roles are binding lenses, proposed roles are advisory, and missing
+roles are created with `status: proposed`. Keep roles compact and free of
+ask/wait/stop/approval policy, versions, paths, or reusable assets. Output the
+matching loaded/proposed/created role line.
 
 ---
 
@@ -281,9 +332,11 @@ Select the role(s) from the detected signals and stack, load or create the role 
 
 **Step 2c — confirm and execute the route.** State the chosen route and why. For
 `foggy-single-session`, run `/sage-grill` even when `plan-flow` is unchecked. For
-`large-multi-session`, run `/sage-wayfinder` and stop this implementation run
-until its map produces a spec-ready handoff. Continue directly only for
-`clear-single-session` or after a command returns its explicit clear exit state.
+`large-multi-session`, run `/sage-wayfinder` until its map produces a spec-ready
+handoff. Under `until-gate`, Wayfinder may span human checkpoints, but a
+completed handoff returns to the active parent and continues directly. Continue
+implementation only for `clear-single-session` or after a command returns its
+explicit clear exit state.
 
 ---
 
@@ -332,6 +385,27 @@ Plan (session ceiling: <model or current agent> @ effort:<effort or unavailable>
 ```
 
 **Step 3b — progress.** Mark task starts/completions as they happen; report results without waiting for the whole phase. On a failure that affects correctness, report immediately and pause. For non-blocking failures, continue only if the remaining path is safe and say why. A new driver, wider target, or destructive effect invalidates the old assessment: stop the affected phase, reassess, add controls, and renew approval if the envelope changed.
+
+**Step 3c — run until gate.** When `interaction.runPolicy` is `until-gate`, the
+parent `/sage` owns the loop:
+
+1. Compute open + unblocked work as the next frontier wave.
+2. Run independent work in parallel; run dependent work after its prerequisite.
+3. Choose repo-conventional defaults for internal + reversible choices and
+   record the assumption.
+4. Batch up to the configured maximum of independent human decisions; keep
+   dependent decision trees one question at a time.
+5. Consume `requirements-clear`, `spec-ready`, and `design-clear` child handoffs
+   immediately when `continueAfterHandoff` is true.
+6. Recompute the frontier and continue. A completed ticket, command, handoff,
+   checkpoint, or phase is not a terminal condition.
+
+Return to the human only for a material HITL decision; HIGH or destructive/
+irreversible work; a meaningful scope/destination/public-contract change;
+auth/payment/PII trust ownership; missing access/manual external action; a
+failed critical control; a matched block/reject; or true completion. A
+standalone child command still returns its artifact because no parent loop
+exists.
 
 ---
 
@@ -425,4 +499,17 @@ Avoid: showing the checklist for a pure question; hiding choices instead of labe
 
 ## Minimal completion checklist
 
-Before the final response, confirm internally: the request was classified correctly; pure questions skipped the checklist; code requests read/created `.sage-local.json` (old `askMode` migrated to `mode`); mode was `auto` or `ask`; all five choices stayed visible with a recommendation label + reason; role files were loaded/created; rules and assets were checked; the repo stack was detected from real files; risk drivers, confidence, required controls, verdict, and plan were stated with provider-neutral tiers within the ceiling; controls had owners and evidence; changes stayed in scope; validation ran or a gap was reported with its consequence; residual risk followed from evidence; docs updated or skipped with a reason; Step 4 knowledge was new/updated/none, split by topic; Step 5 summary included Changed, Decisions or Fix, Validated, Residual risk, Docs, Remaining, and Knowledge.
+Before the final response, confirm internally: the request was classified
+correctly; pure questions skipped the checklist; code requests read/created
+`.sage-local.json` (legacy config migrated to version 3); mode was `auto` or
+`ask`; `auto` opened no picker; `ask` used the best callable picker capability;
+all five choices stayed visible with a recommendation label + reason;
+interaction policy never weakened a safety gate; child handoffs continued when
+configured; role files were loaded/created; rules and assets were checked; the
+repo stack was detected from real files; risk drivers, confidence, required
+controls, verdict, and plan were stated with provider-neutral tiers within the
+ceiling; controls had owners and evidence; changes stayed in scope; validation
+ran or a gap was reported with its consequence; residual risk followed from
+evidence; docs updated or skipped with a reason; Step 4 knowledge was
+new/updated/none, split by topic; Step 5 summary included Changed, Decisions or
+Fix, Validated, Residual risk, Docs, Remaining, and Knowledge.

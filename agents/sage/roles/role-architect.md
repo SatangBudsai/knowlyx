@@ -2,6 +2,7 @@
 role: architect
 title: Senior Architect
 covers: [architecture, protocol, workflow, risk]
+status: approved
 updated: 2026-07-17
 ---
 
@@ -14,11 +15,11 @@ updated: 2026-07-17
 ## Pitfalls (what this lens must not miss)
 
 - A label that is displayed but does not change downstream behavior.
-- Conflicting stop conditions or duplicated rules that let agents choose the easier path.
+- Conflicting continuation conditions or duplicated rules that let agents choose the easier path.
 - Controls that are generic rather than tied to the concrete risk driver.
 
 ## How I work
 
 - Reuse before writing; follow the domain's `rules.md`.
 - Trace every decision to an observable consequence and validation result.
-- Name the blast radius; stop on HIGH risk.
+- Name the blast radius and pass risk drivers to the central protocol gate.

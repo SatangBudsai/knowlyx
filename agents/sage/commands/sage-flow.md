@@ -43,10 +43,12 @@ ceiling itself — never raise above it. State the ceiling once in the intent bl
 
 Open `agents/sage/roles/role-architect.md`:
 
-- **Found** → read and adopt. Output: `Role: architect [loaded]`
-- **Missing** → create it (persona: draws clean system boundaries, decides what
-  belongs in which service/store/token, makes failure and idempotency explicit),
-  output: `Role: architect [created]`
+- **Found** → read it; adopt when `status: approved`, use as advisory when
+  `status: proposed`. Output the matching loaded/proposed role line.
+- **Missing** → create it with `status: proposed` (draws clean system
+  boundaries, decides what belongs in which service/store/token, makes failure
+  and idempotency explicit), output:
+  `Role: architect [created · proposed]`
 
 A flow may span domains (frontend, backend, payments, data). Load the relevant
 domain role when you reach that system's section and output the handoff line.
@@ -87,9 +89,9 @@ and relevant `decisions/` and quote what applies.
 
 ---
 
-## Step 3 — State intent + get approval
+## Step 3 — State intent + apply the central risk verdict
 
-Output this block, then wait for `ask`/`reject` before writing the full doc:
+Output this block before writing the full doc:
 
 ```text
 Repos   : <repo → responsibility>  (list each when >1)
@@ -102,8 +104,14 @@ Unknowns: <open questions that block design>
 Risk    : LOW | MEDIUM | HIGH · confidence:<low|medium|high> — <why>
 Drivers : <affected asset → concrete failure mode>
 Controls: <required control the flow must design + later evidence>
-Decision: proceed | ask | reject
+Decision: proceed | warn | ask | reject
 ```
+
+- `proceed|warn` → build and verify the flow without inventing a confirmation
+  checkpoint.
+- `ask|reject` → return to the human before the affected mutation.
+
+Interaction policy never weakens the central risk verdict.
 
 ---
 
@@ -182,6 +190,11 @@ trust boundary, a missed error path, a step that contradicts a rule, a simpler
 route), make sure every uncertainty is in §13 Open Questions, and **ask the human
 the risky/ambiguous ones now** — do not code past a doubt.
 
+Classify open questions by dependency. Batch two or three independent decisions
+in one checkpoint (bounded by `maxQuestionsPerCheckpoint`) with a recommendation
+for each. Ask a dependent decision tree one most-blocking question at a time
+because each answer changes the next branch. Facts stay agent-owned.
+
 Also apply the driver-control matrix in `AGENTS.md` §1.4. Every applicable
 required control must appear in the flow's edge cases, security/concurrency, or
 build checklist with the system that will produce its evidence. A flow with an
@@ -192,7 +205,14 @@ the resulting risk open rather than hiding it in prose.
 (system boundaries, APIs, state, failure paths, security, rollout). Product
 intent, terminology, scope, and trade-offs resolved upstream stay closed unless
 contradictory code/schema evidence is cited. End with `design-clear` only when
-all implementation-shaping questions are resolved; otherwise stop and wait.
+all implementation-shaping questions are resolved; otherwise return the material
+gate and wait.
+
+When invoked by an active `/sage` run with
+`interaction.continueAfterHandoff: true`, return `design-clear` to the parent and
+continue into implementation immediately. Completing Flow is a handoff, not a
+terminal condition. When invoked standalone, print the summary and return the
+artifact because no parent run exists.
 
 ---
 
@@ -252,4 +272,6 @@ system that owns each critical decision.
 ──────────────────────────────────────────────────
 ```
 
-Then stop. The human confirms the open questions before implementation begins.
+If Open Questions contains a material gate, return it to the human. Otherwise
+return `design-clear` to the active parent `/sage` run and continue when
+configured; do not add a generic confirmation step.

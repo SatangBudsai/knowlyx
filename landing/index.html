@@ -1783,8 +1783,10 @@ irm https://cdn.jsdelivr.net/gh/qorstack/sage@latest/install.ps1 | iex</pre
                 <p>
                   Full pipeline before and after every code change — pick role,
                   read team knowledge, assess risk, code, capture, summarize. It
-                  also shows a short checklist and, once you confirm, runs the
-                  right specialist itself: <code>/sage-flow</code>,
+                  also shows a short checklist. Auto mode selects the recommended
+                  set and continues; ask mode uses the best picker the host
+                  exposes. Then it runs the right specialist itself:
+                  <code>/sage-flow</code>,
                   <code>/sage-unit-test</code>, <code>/sage-e2e-test</code>,
                   <code>/sage-security-review</code>. You mostly just type
                   <code>/sage</code>.
@@ -1826,12 +1828,15 @@ irm https://cdn.jsdelivr.net/gh/qorstack/sage@latest/install.ps1 | iex</pre
               <h2>You mostly just run /sage.</h2>
             </div>
             <p>
-              Before each change, <code>/sage</code> shows a short checklist and —
-              once you confirm — runs the right specialist itself: design the flow
+              Before each change, <code>/sage</code> shows a short checklist.
+              Auto mode continues without prompting; ask mode prefers native
+              checkboxes, then structured or compact fallbacks. Sage runs the
+              right specialist itself: design the flow
               (<code>/sage-flow</code>), write tests
               (<code>/sage-unit-test</code>, <code>/sage-e2e-test</code>), review
               security (<code>/sage-security-review</code>), refresh docs
-              (<code>/sage-docs</code>).
+              (<code>/sage-docs</code>), and continues across handoffs until a
+              material gate or completion.
             </p>
           </div>
 

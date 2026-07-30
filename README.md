@@ -96,9 +96,11 @@ After installing, run these commands in sequence. Each builds on the last.
 > **Skip step 1?** Sage still works — it just starts with no team context.
 > Run `/sage-learning` later whenever you want to seed knowledge from real code.
 
-**You mostly just use `/sage`.** Before each change it shows a short **checklist**
-and — once you confirm — runs the right specialist command itself, so you don't
-have to remember them:
+**You mostly just use `/sage`.** Before each change it shows a short
+**checklist**. In `mode:auto`, Sage chooses the recommended set and continues
+without asking. In `mode:ask`, it uses a native multi-select picker when the host
+provides one, otherwise a one-click Recommended/Defaults/Customize choice or a
+compact `+/-` fallback — no provider name is assumed to support a widget.
 
 Before that checklist, Sage routes the request by how much decision fog remains:
 
@@ -120,8 +122,14 @@ Grill and Wayfinder are always-on guards, not checklist choices. Turning
 | `update-docs`     | `/sage-docs`            | refresh the human-facing docs            |
 
 Sage auto-checks what fits the task and auto-unchecks what doesn't (with a
-reason) — you confirm, it runs. Every command's full body lives once in
-`agents/sage/commands/`; the per-tool files just point at it.
+reason). `mode:auto` runs that set immediately; `mode:ask` asks through the best
+structured input the current session exposes. Every command's full body lives
+once in `agents/sage/commands/`; the per-tool files just point at it.
+
+The version 3 local config also separates checklist selection from interaction:
+`interaction.runPolicy: "until-gate"` keeps working across command/ticket/phase
+handoffs until a real human/safety/access gate or completion. `"strict"` restores
+command checkpoints. Neither setting can weaken HIGH/destructive/HITL controls.
 
 ### Risk changes what Sage does
 
@@ -139,7 +147,7 @@ the gate; the driver chooses the control:
 | Public contract | consumer search + compatibility test + rollout/version plan |
 | Production infrastructure | plan/diff + staged rollout + health/rollback evidence |
 
-`mode:auto` skips only checklist confirmation. It never approves a HIGH-risk
+`mode:auto` skips checklist selection entirely. It never approves a HIGH-risk
 change, a destructive target, a genuine human decision, or an override of a
 matched `block` rule. After validation, Sage reports **residual risk** and may
 lower the initial level only when actual evidence supports it.
@@ -155,8 +163,9 @@ The lifecycle commands you run directly:
 
 **`/sage-grill`** — resolve a foggy request that fits one session
 
-It looks up facts itself, asks genuine decisions one at a time, stress-tests
-material answers with concrete scenarios, updates
+It looks up facts itself, batches two or three independent decisions, keeps
+dependent decision branches one-at-a-time, stress-tests material answers with
+concrete scenarios, updates
 `agents/sage/<domain>/context.md` as terms settle, and checkpoints multi-decision
 sessions before the first question. It exits `requirements-clear`; `/sage-flow`
 must consume that handoff without repeating resolved product questions.
@@ -166,11 +175,16 @@ must consume that handoff without repeating resolved product questions.
 It creates a durable destination/map/ticket frontier under
 `agents/sage/wayfinders/` by default, or uses a repo-configured issue tracker.
 Tickets are `research`, `prototype`, `grilling`, or `task`; each declares
-blocking and claim state. When no fog or tickets remain, Wayfinder synthesizes a
-spec and hands it to `/sage-flow`.
+blocking and claim state. Wayfinder resolves independent tickets as repeated
+frontier waves, stopping only at a material gate. When no fog or tickets remain,
+it synthesizes a spec and hands it to `/sage-flow`; an active `/sage` run then
+continues instead of ending at the handoff.
 
 See [`docs/request-routing-wayfinder.md`](docs/request-routing-wayfinder.md) for
 the complete routing, checkpoint, map/ticket, and handoff contracts.
+
+See [`docs/run-until-gate.md`](docs/run-until-gate.md) for checklist picker
+capability, interaction config v3, continuation, and stop conditions.
 
 **`/sage-flow`** — design implementation from clear requirements
 

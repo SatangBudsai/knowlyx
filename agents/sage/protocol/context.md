@@ -27,10 +27,10 @@ trade-offs; suspected questions not yet sharp enough to phrase.
 
 ## Grill
 
-**Definition:** A one-question-at-a-time HITL session that resolves
-single-session Fog into confirmed requirements.
-**Invariants:** The human owns HITL decisions; Grill records every answer before
-moving to the next branch.
+**Definition:** A dependency-aware HITL session that resolves single-session Fog
+into confirmed requirements.
+**Invariants:** The human owns HITL decisions; Grill batches only independent
+questions and records every answer before computing a dependent branch.
 **Includes:** fact lookup, recommendations, scenario challenges, glossary
 updates, checkpoint decisions.
 **Excludes:** implementation design, product code, multi-session coordination.
@@ -41,7 +41,8 @@ updates, checkpoint decisions.
 **Definition:** A durable multi-session planning map that coordinates decision
 tickets until the route to a Destination is clear.
 **Invariants:** The map indexes state while each ticket owns its resolution; a
-session claims before work and closes at most one non-research ticket.
+run claims before work and closes every independent ticket reachable in the
+current Frontier wave before returning at a material Gate.
 **Includes:** Destination, decision tickets, blocking, claims, Frontier,
 Not yet specified, Out of scope.
 **Excludes:** implementation tickets and delivery of the Destination.
@@ -62,10 +63,34 @@ planning outcome.
 **Definition:** Open, unblocked, unclaimed Wayfinder tickets that a session may
 work now.
 **Invariants:** It is recomputed from ticket status, dependencies, and claims;
-blocked or claimed tickets never appear in it.
+blocked or claimed tickets never appear in it; completion of one wave immediately
+opens the next wave under `runPolicy: until-gate`.
 **Includes:** tickets whose `blocked_by` dependencies are closed.
 **Excludes:** blocked, claimed, closed, or out-of-scope tickets; unphraseable Fog.
 **Related:** Ticket, Not yet specified.
+
+## Run frontier
+
+**Definition:** Every open + unblocked task the active parent `/sage` can perform
+without a new human-owned decision or external authority.
+**Invariants:** Closing a command, ticket, handoff, checkpoint, or phase
+recomputes the Run frontier; it is not itself a terminal condition.
+**Includes:** independent research, implementation, validation, docs, and child
+handoffs whose prerequisites are complete.
+**Excludes:** work behind a Gate, blocked dependencies, out-of-scope work.
+**Related:** Frontier, Gate, Flow.
+
+## Gate
+
+**Definition:** A condition that requires human authority, new access/evidence,
+or safe rejection before affected work may continue.
+**Invariants:** Interaction preferences may add checkpoints but can never remove
+a central risk Gate.
+**Includes:** material HITL decisions, HIGH/destructive work, trust-boundary
+approval, missing access/manual external action, failed critical controls.
+**Excludes:** completing a ticket/phase, reversible internal preferences, routine
+child handoffs.
+**Related:** Run frontier, Requirements-clear, Design-clear.
 
 ## Requirements-clear
 

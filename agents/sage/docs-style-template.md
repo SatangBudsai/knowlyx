@@ -26,8 +26,9 @@ and read top-to-bottom** like a senior engineer explaining the flow end-to-end.
 1. **Markdown only.** `.md`, not `.html`. Diagrams are **ASCII/text inside a
    fenced code block**, not SVG or Mermaid — they render everywhere and diff
    cleanly.
-2. **One language, never mixed.** All prose in the chosen language (English by
-   default; ask every time). Technical tokens (method, path, table, field,
+2. **One language, never mixed.** Infer the prose language from the existing
+   doc, explicit request, conversation, or repo convention; ask only when those
+   signals conflict materially. Technical tokens (method, path, table, field,
    status, key, DTO) keep their real names and do not count as mixing.
 3. **Complete, not summarized.** The doc is the artifact. Never cut a guard, an
    error path, or a side effect to keep it short. Brevity means cutting empty

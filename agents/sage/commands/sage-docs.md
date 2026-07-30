@@ -12,9 +12,10 @@ completeness bar. This command is the workflow around it.
 
 **Speed rule:** Read everything you need in one batch (the style-guide + source
 material + the existing `.md` if updating), then generate the full doc in a
-single pass. Do not stop mid-way — **with one exception:** the doc language (§1),
-asked once before you start, every time. After that, no more questions **unless
-the verify pass (§6) surfaces a genuine doubt** — then ask.
+single pass. Infer the language from the existing doc, explicit request, or
+conversation. Ask only when those signals conflict and the choice materially
+changes the artifact. After that, no more questions unless the verify pass (§6)
+surfaces a genuine doubt.
 
 **Write in full — never abbreviate the doc.** The doc is the deliverable, not a
 summary of one. The only brief part is the closing summary block (§7). Never cut
@@ -45,13 +46,17 @@ Easy to read **+** complete conditions **+** concise — all three at once:
 
 ### 1 — Prepare
 
-**Ask doc language first (mandatory, every time).** Use AskUserQuestion before
-reading source or writing anything: **English (default/recommended)** · Thai ·
-Other. The answer sets the language of all prose. Never mix two languages;
-technical tokens (method/path/table/field/status/key/DTO) keep their real names.
+**Resolve doc language without a preference checkpoint.** Use the existing
+document language when updating, an explicitly requested language when supplied,
+otherwise the conversation/repo convention. Record the assumption. If signals
+conflict and the choice is material, use the best callable picker capability to
+ask once: **English (recommended when repo docs are English)** · Thai · Other.
+Never assume `AskUserQuestion` exists from the provider name. Technical tokens
+(method/path/table/field/status/key/DTO) keep their real names.
 
-**Load role:** open `agents/sage/roles/role-writer.md` → adopt immediately. If
-missing, create it (persona: loves making complex systems clear at a glance).
+**Load role:** open `agents/sage/roles/role-writer.md` → adopt when approved or
+use as advisory when proposed. If missing, create it with `status: proposed`
+(makes complex systems clear at a glance).
 
 **Detect mode** (derive slug from the title, kebab-case):
 

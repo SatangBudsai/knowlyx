@@ -16,7 +16,7 @@ agents/sage/
   docs-style-template.md    # the /sage-docs + /sage-flow markdown style-guide
   flows/<slug>-flow.md      # implementation-ready flow docs from /sage-flow
   wayfinders/<slug>/        # durable map + decision tickets for multi-session fog
-  roles/role-<lens>.md      # reusable senior personas (ikigai roles) — see AGENTS.md §2
+  roles/role-<lens>.md      # compact senior lenses — see AGENTS.md §2
   <domain>/                 # e.g. billing, search, your own domains
     context.md              # canonical glossary, created lazily
     rules.md                # the domain's standing rules
@@ -30,9 +30,10 @@ updates every agent.
 `flows/risk-controls-flow.md` defines the current end-to-end contract for turning
 risk drivers into required controls, validation evidence, and residual risk.
 
-`roles/` is Sage's library of senior personas — each one an **ikigai role** that
-knows what it's good at. Sage creates them as topics come up and reuses them
-after (`roles/role-dev.md` ships as a starter example).
+`roles/` is Sage's library of compact senior lenses: Expertise, Pitfalls, and How
+I work. Approved roles are binding; newly AI-created roles start as
+`status: proposed`. Roles describe domain failure modes, not approval gates,
+version facts, paths, or reusable assets.
 
 ## Example entry
 

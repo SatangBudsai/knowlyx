@@ -17,9 +17,11 @@ one idea per file.
 ## Phase 1 — Learn from THIS codebase
 
 **Role: `codebase-analyst`** — open `agents/sage/roles/role-codebase-analyst.md`;
-if missing, create it (expertise: reading source, extracting real conventions,
-spotting reusable assets; pitfall: inventing conventions the code doesn't follow).
-Output `Role: codebase-analyst [loaded|created]`.
+if missing, create it with `status: proposed` (expertise: reading source,
+extracting real conventions, spotting reusable assets; pitfall: inventing
+conventions the code doesn't follow). Output
+`Role: codebase-analyst [loaded]` when found or
+`Role: codebase-analyst [created · proposed]` when missing.
 
 1. **Map the repo.** Identify the domains (e.g. `billing`, `search`), the stack
    (detect from real manifests — `package.json`, `pyproject.toml`, `go.mod`,
@@ -51,10 +53,12 @@ Output `Role: codebase-analyst [loaded|created]`.
 ## Phase 2 — Research best practices for the stack
 
 **Role: `researcher`** (handoff) — open `agents/sage/roles/role-researcher.md`;
-if missing, create it (expertise: evaluating sources, distilling opinionated
-guidance from noise, matching patterns to a specific stack; pitfall: cargo-culting
-advice that doesn't fit this stack). Output
-`Role: researcher [loaded|created] — handoff from codebase-analyst`.
+if missing, create it with `status: proposed` (expertise: evaluating sources,
+distilling opinionated guidance from noise, matching patterns to a specific
+stack; pitfall: cargo-culting advice that doesn't fit this stack). Output
+`Role: researcher [loaded] — handoff from codebase-analyst` when found or
+`Role: researcher [created · proposed] — handoff from codebase-analyst` when
+missing.
 
 1. **Use the stack + domains** detected in Phase 1 (plus the existing
    `agents/sage/` knowledge, so you don't duplicate it).

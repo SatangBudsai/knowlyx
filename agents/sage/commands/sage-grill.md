@@ -2,8 +2,9 @@
 
 Turn a `foggy-single-session` request into `requirements-clear`: product intent,
 canonical terminology, scope, and trade-offs the human has actually confirmed.
-Ask one decision at a time, ground facts in the repo, maintain the domain glossary
-inline, and checkpoint multi-decision sessions so alignment survives the chat.
+Batch independent decisions, keep dependent branches one-at-a-time, ground facts
+in the repo, maintain the domain glossary inline, and checkpoint multi-decision
+sessions so alignment survives the chat.
 
 **Produces decisions, not product code.** It stops before design or
 implementation. It is an always-on routing guard independent of `plan-flow`, not
@@ -48,9 +49,10 @@ Separate:
 - **Decisions** — product intent, scope, priorities, canonical terms, risk
   appetite, and trade-offs between valid outcomes. Only these become questions.
 
-List sharp decisions in dependency order. Fog that cannot yet be phrased stays
-`not-yet-specified`; never invent a fake ticket/question. If the tree, research,
-or prototypes cannot reasonably fit this session, output
+List sharp decisions in dependency order and mark which ones are independent.
+Fog that cannot yet be phrased stays `not-yet-specified`; never invent a fake
+ticket/question. If the tree, research, or prototypes cannot reasonably fit this
+session, output
 `Route: large-multi-session` and hand the request to `/sage-wayfinder`.
 
 Otherwise output `Route: foggy-single-session` and continue.
@@ -94,21 +96,27 @@ outlive the conversation.
 
 ---
 
-## Step 4 — Grill one decision and stress-test it
+## Step 4 — Grill a dependency-safe checkpoint and stress-test it
 
-For each decision:
+For each checkpoint:
 
-1. Ask the single most-blocking question precisely.
-2. Recommend one answer and give one concise reason.
-3. Wait. A HITL decision is never answered by the agent.
-4. Sharpen overloaded terms before building on them.
-5. For a **material decision** — one that changes user behavior, domain
+1. Split independent from dependent decisions.
+2. For independent decisions, ask two or three together (never above
+   `maxQuestionsPerCheckpoint`), with one recommended answer and concise reason
+   for each.
+3. For a dependent tree, ask the single most-blocking question, wait, record the
+   answer, then compute the next branch.
+4. A HITL decision is never answered by the agent. Internal reversible
+   preferences use the repo convention/recommended default and record an
+   assumption when `autoDecideReversible` is enabled.
+5. Sharpen overloaded terms before building on them.
+6. For a **material decision** — one that changes user behavior, domain
    relationships, data/trust ownership, scope, or a hard-to-reverse trade-off —
    test the proposed answer with at least one concrete boundary/counterexample:
    retry, partial failure, permission mismatch, empty/expired state, conflicting
    term, or another scenario specific to the domain.
-6. If the scenario breaks the answer, reopen/refine it; do not mark it decided.
-7. Record the answer/checkpoint before continuing.
+7. If the scenario breaks the answer, reopen/refine it; do not mark it decided.
+8. Record every answer/checkpoint before continuing.
 
 When a canonical term is resolved, update
 `agents/sage/<domain>/context.md` **immediately** and add/list it in the domain
@@ -118,7 +126,9 @@ index. Do not batch glossary writes until the end.
 
 ## Step 5 — Exit with a contract, not more questions
 
-Exit only as `requirements-clear`, after the human confirms shared understanding.
+Exit only as `requirements-clear`, after every material human-owned decision has
+a recorded answer and no unresolved branch changes implementation shape. Do not
+add a generic confirmation when the checkpoint already records clear answers.
 The handoff must contain:
 
 - product intent and success outcome;
@@ -131,6 +141,12 @@ The handoff must contain:
 APIs, state, failure paths, security, concurrency, and rollout. It must not ask a
 resolved product question again unless new code/schema evidence contradicts it;
 then it reopens the named decision and cites the evidence.
+
+When an active parent `/sage` run has
+`interaction.continueAfterHandoff: true`, return `requirements-clear` to the
+parent and continue to Flow or implementation immediately. The Grill handoff is
+not a terminal condition. A standalone `/sage-grill` still prints its summary
+and returns because no parent run exists.
 
 If fog grows beyond this session at any point, checkpoint current state and hand
 off to `/sage-wayfinder`; `/sage-flow` accepts only a clear, implementation-ready
@@ -179,11 +195,12 @@ Update the domain index whenever `context.md` or a decision is added.
 ──────────────────────────────────────────────────
 ```
 
-Stop. The next command consumes this handoff; it does not restart the interview.
+Return the handoff once. An active parent consumes it immediately when
+configured; the next command does not restart the interview.
 
 ---
 
-_The one-question-at-a-time fact/decision discipline is adapted from Matt
-Pocock's `grilling`; inline glossary and scenario stress-testing are adapted from
-`domain-modeling` (MIT). Sage adds routing, checkpoints, risk controls, and the
-explicit Grill → Flow exit contract._
+_The fact/decision and dependent-branch discipline is adapted from Matt Pocock's
+`grilling`; inline glossary and scenario stress-testing are adapted from
+`domain-modeling` (MIT). Sage adds independent-question batching, routing,
+checkpoints, risk controls, and the explicit Grill → Flow exit contract._

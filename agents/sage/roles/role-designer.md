@@ -2,6 +2,7 @@
 role: designer
 title: Senior Designer
 covers: [demo-media, visual-assets, storytelling, product-explainer]
+status: approved
 updated: 2026-06-19
 ---
 ## Expertise (what this lens is strong at)

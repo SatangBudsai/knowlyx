@@ -1,8 +1,9 @@
 # /sage-wayfinder — chart and resolve work too foggy for one session
 
 Plan a `large-multi-session` effort as a durable map of decision tickets. Name
-the destination, chart only the visible frontier, resolve one ticket per session,
-and stop when nothing remains to decide before `/sage-flow` or implementation.
+the destination, chart only the visible frontier, and resolve every runnable
+frontier wave until a material gate or nothing remains to decide before
+`/sage-flow` or implementation.
 
 **Plan, don't build.** Tickets answer decisions or unblock decisions; they are
 not implementation slices. Wayfinder is a situational routing guard, not the
@@ -77,7 +78,7 @@ The map is an index, not the answer store. Open tickets appear in its table so a
 local backend can derive the frontier; full question/resolution lives only in
 the ticket. Refer to tickets by linked title, not bare id.
 
-### Local ticket — one decision session
+### Local ticket — one sharp decision
 
 ```markdown
 ---
@@ -138,31 +139,47 @@ updated: <ISO-8601>
    even if blocked. Keep unphraseable fog in `Not yet specified`.
 6. **Wire dependencies second.** Create ids first, then set `blocked_by`/native
    blocking links. The **frontier** is open + unblocked + unclaimed tickets.
-7. **Optionally start independent research.** Only `research` tickets may be
-   resolved in parallel; record each result in its canonical ticket.
-8. Set map status `active` and stop. Charting does not hand-resolve a ticket.
+7. **Start the runnable frontier.** AFK `research` and AFK `task` tickets may be
+   resolved in parallel when independent; record each result in its canonical
+   ticket.
+8. Set map status `active`, recompute the frontier, and enter Mode B immediately
+   under `runPolicy: "until-gate"`. Chart completion is a state transition, not
+   a stop. Under `strict`, return the active-map checkpoint.
 
 ---
 
-## Mode B — Work one frontier ticket
+## Mode B — Work frontier waves
 
 1. Load only the map low-resolution view and configured backend operations.
-2. Choose the user-named ticket or first frontier ticket in table/query order.
-3. Re-read canonical state. A ticket with an open blocker, assignee, or non-open
-   status is not claimable.
+2. Compute all open + unblocked + unclaimed tickets. Respect a user-named ticket
+   as the scoped frontier; otherwise use table/query order.
+3. Re-read canonical state before each claim. A ticket with an open blocker,
+   assignee, or non-open status is not claimable.
 4. **Claim before work:** local → set `status: claimed` + `assignee`; tracker →
-   assign using its native operation. If another session won, choose the next
-   frontier ticket.
-5. Resolve exactly one non-research ticket. Load related tickets/source only as
-   needed. Use `/sage-grill` for HITL decisions and update domain `context.md`
-   inline when canonical terms settle.
-6. Record answer + evidence in the ticket, set `closed`, and append one linked
-   gist to `Decisions so far`. Never duplicate the full rationale on the map.
-7. Graduate newly sharp fog into tickets and remove that patch from
+   assign using its native operation. If another session won, skip that ticket
+   and continue with the remaining frontier.
+5. Partition the claimed frontier:
+   - AFK `research`/`task` → resolve in parallel when evidence and side effects
+     are independent.
+   - independent HITL `prototype`/`grilling`/`task` → combine at most
+     `maxQuestionsPerCheckpoint` decisions with a recommendation for each.
+   - dependent HITL decisions → ask the single most-blocking branch, record the
+     answer, then recompute.
+6. Resolve every unblocked ticket that does not require a material gate. Load
+   related tickets/source only as needed. Use `/sage-grill` discipline for HITL
+   decisions and update domain `context.md` inline when canonical terms settle.
+7. For each resolution, record answer + evidence in the ticket, set `closed`,
+   and append one linked gist to `Decisions so far`. Never duplicate full
+   rationale on the map.
+8. Graduate newly sharp fog into tickets and remove that patch from
    `Not yet specified`. Create tickets first, then wire dependencies.
-8. If a ticket lies beyond Destination, set `out-of-scope`, record why under
+9. If a ticket lies beyond Destination, set `out-of-scope`, record why under
    `Out of scope`, and omit it from Decisions so far.
-9. Update/delete invalidated tickets and edges, refresh map timestamp, then stop.
+10. Update/delete invalidated tickets and edges, refresh the map timestamp,
+    recompute the frontier, and start the next wave immediately.
+11. Return to the human only when every reachable frontier branch is blocked by
+    material HITL, HIGH/destructive risk, missing access/manual external action,
+    or failed critical evidence. Under `strict`, return after the completed wave.
 
 Local Markdown claims are cooperative, not atomic: re-read immediately before
 claim and report a simultaneous-write conflict rather than overwriting it.
@@ -184,6 +201,12 @@ The spec contains Problem, Success outcome, Canonical terms, Decisions,
 Out of scope, Evidence pointers, and `Open: none`. Hand it to `/sage-flow` for
 implementation design. Wayfinder never sends an active/incomplete map to Flow.
 
+When invoked by an active `/sage` run with
+`interaction.continueAfterHandoff: true`, return `spec-ready` to the parent and
+continue into `/sage-flow` or implementation immediately. Map completion is a
+handoff, not a terminal condition. A standalone `/sage-wayfinder` still prints
+its summary and returns because no parent run exists.
+
 ---
 
 ## Failure and concurrency rules
@@ -193,7 +216,10 @@ implementation design. Wayfinder never sends an active/incomplete map to Flow.
   planning scope.
 - A HITL ticket cannot close without a real human exchange.
 - A blocked ticket cannot be claimed.
-- One session resolves at most one non-research ticket.
+- One frontier wave may close multiple independent tickets; each still owns one
+  sharp canonical resolution.
+- Parallel work requires independent dependencies and side effects. Recompute
+  the frontier after each wave.
 - Newly discovered destination changes require human confirmation, then update
   scope/out-of-scope and invalidate affected tickets before continuing.
 
@@ -204,12 +230,12 @@ implementation design. Wayfinder never sends an active/incomplete map to Flow.
 ```markdown
 ── Sage Wayfinder ────────────────────────────────
 **Role** · architect — <effort>
-**Mode** · chart | work-ticket
+**Mode** · chart | frontier-wave
 **Backend** · local-markdown | <configured tracker>
 **Map** · <path/link> | **Status** · charting|active|complete
 
 **Destination** · <one line>
-**Worked** · <ticket title/link, or "chart only">
+**Worked** · <linked ticket titles closed in this wave, or "chart only">
 **Frontier** · <linked titles, or "none">
 **Fog** · <count/summary, or "none">
 **Out of scope** · <new boundary, or "unchanged">

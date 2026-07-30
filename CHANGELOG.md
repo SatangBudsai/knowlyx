@@ -6,12 +6,25 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
 
 ### Added — cognition upgrades
 
+- **Run-until-gate interaction policy** — version 3 separates checklist mode
+  from continuation. The parent `/sage` now consumes Grill/Flow/Wayfinder
+  handoffs and completes every unblocked frontier wave until a material
+  human/safety/access gate or true completion; `strict` keeps command
+  checkpoints when explicitly preferred.
+- **Capability-aware checklist picker** — `mode:auto` never asks for checklist
+  input. `mode:ask` prefers a native multi-select, falls back to a structured
+  Recommended/Defaults/Customize choice, then to compact keyword/exception
+  input when the host has no picker.
+- **Role status and boundary** — committed roles are `approved`, newly generated
+  roles start `proposed`, and role files contain expertise/failure modes rather
+  than duplicated approval gates or version/path facts.
 - **Three-route dispatcher** — every code request is classified as
   `clear-single-session`, `foggy-single-session`, or `large-multi-session` before
   design; Grill/Wayfinder guards are independent of the locked checklist.
 - **`/sage-wayfinder`** — local-first durable maps and decision tickets with
-  destination, fog, out-of-scope, frontier, blocking, claim, HITL/AFK types, and
-  spec handoff; configured issue trackers remain optional backends.
+  destination, fog, out-of-scope, repeated frontier waves, blocking, claim,
+  HITL/AFK types, and spec handoff; configured issue trackers remain optional
+  backends.
 - **Grill-with-docs behavior** — `/sage-grill` now updates domain context inline,
   checkpoints multi-decision sessions before questioning, stress-tests material
   decisions with scenarios, and has an explicit no-repeat handoff to Flow.
@@ -20,8 +33,9 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
   reports residual risk. `mode:auto` no longer has any ambiguous path around a
   HIGH-risk, destructive, HITL, or matched-`block` gate.
 - **`/sage-grill`** — a new command that interrogates a foggy request into agreed
-  decisions one question at a time (facts you look up yourself; only real
-  decisions go to the human) before `/sage-flow`. The grilling technique is
+  decisions (batching independent questions while keeping dependent branches
+  one-at-a-time; facts are looked up by the agent) before `/sage-flow`. The
+  grilling technique is
   adapted from [Matt Pocock's skills](https://github.com/mattpocock/skills)
   (`grilling`, MIT), folded into Sage's pipeline rather than shipped standalone.
 - **Large-effort decision-map** in `/sage-flow` — when an effort is too big for

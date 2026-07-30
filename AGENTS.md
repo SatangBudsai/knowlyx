@@ -45,23 +45,57 @@ product/domain decisions. Re-route when new facts change the amount of fog. A
 large/multi-file implementation may still be `clear-single-session`; size alone
 does not make it Wayfinder work.
 
-**Read `.sage-local.json` at the repo root** (gitignored, per-machine). It holds
-`mode` (`"auto"` or `"ask"`) and the default `checklist`. Migrate the old field if
-present: `askMode: "smart"` → `mode: "auto"`, `askMode: "always"` → `mode: "ask"`
-(set `version: 2`, keep unknown fields). Create it with `mode: "auto"` if missing,
-and add it to `.gitignore`. To change these, the human runs **`/sage-setting`** —
-never ask them to hand-edit JSON.
+**Read `.sage-local.json` at the repo root** (gitignored, per-machine). It keeps
+checklist selection (`mode`, `checklist`) separate from interaction policy.
+Migrate old fields while preserving unknown fields:
+
+- `askMode: "smart"` → `mode: "auto"`
+- `askMode: "always"` → `mode: "ask"`
+- version 2 → keep `mode`/`checklist`, add the version 3 `interaction` defaults
+
+Create version 3 with `mode: "auto"` if missing, and add it to `.gitignore`.
+To change these, the human runs **`/sage-setting`** — never ask them to hand-edit
+JSON.
 
 **Mode decides whether to prompt (code requests only):**
 
 - **`auto`** — decide the steps yourself, show the full checklist with a
   recommended / not-recommended label + reason on each, enable the recommended
-  ones, and **proceed without waiting**.
+  ones, and **proceed without opening a picker or waiting**.
 - **`ask`** — show the full checklist with the same labels and **wait for the
   human** before running anything; then persist their choice as the defaults.
 
 Headless (cannot prompt) behaves like `auto` and states that prompting was
 unavailable.
+
+**Use the best picker the current environment actually exposes.** Detect
+callable capabilities per session; never infer them from provider names:
+
+1. Native multi-select available → use a real checkbox picker with the five
+   locked choices in order.
+2. Structured single-select only → show all five recommendations, then offer
+   `Run recommended` (recommended), `Use saved defaults`, or `Customize`.
+   `Customize` asks on/off toggles in batches the tool supports.
+3. No structured input → accept `recommended`, `defaults`, or only exceptions
+   such as `-e2e +security`. A numbered reply remains a legacy fallback, never
+   the primary interaction.
+
+`mode:auto` never opens any of these pickers. A Markdown file cannot manufacture
+a host-native checkbox; promise native widgets only when the host exposes them.
+
+**Interaction policy decides when an active run returns to the human:**
+
+- **`until-gate`** (default) — complete every unblocked task/frontier wave,
+  continue across Grill/Flow/Wayfinder handoffs, and stop only at a material gate
+  or true completion.
+- **`strict`** — return at command checkpoints for teams that deliberately want
+  the older, more synchronous behavior.
+
+Question policy defaults to `batch-independent`: combine up to three independent
+human decisions in one checkpoint; ask dependent decisions one at a time because
+each answer changes the next branch. Reversible internal preferences use the
+repo convention/recommended default and record an assumption. Interaction
+settings never weaken the risk gates in §1.4.
 
 **Always-on — this is Sage itself, never a checkbox:**
 
@@ -95,8 +129,10 @@ like `1,3,5`.
 
 **Recommend honestly — the label MUST match the reason.** Mark each step
 `recommended` or `not recommended` from the task's signals (logic → `unit-test`; a
-cross-boundary flow → `e2e-test`; auth/money/PII/secrets → `security-review`; a
-feature / multi-file / real uncertainty → `plan-flow`). **Never recommend a step
+cross-boundary flow → `e2e-test`; auth/money/PII/secrets → `security-review`;
+cross-boundary journey, public contract, schema, auth/payment, or real
+architecture uncertainty → `plan-flow`). Multi-file size, an ordinary bug, or a
+dependency change alone is not enough. **Never recommend a step
 whose reason is "not applicable" or "only if…".** In `auto`, enable the
 recommended set and proceed; in `ask`, start from the saved `checklist`, present
 it, and let the human decide (then persist). The full signal → recommendation
@@ -107,7 +143,7 @@ rules live in `agents/sage/commands/sage.md`.
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "mode": "auto",
   "checklist": {
     "auto-switch-model": true,
@@ -115,6 +151,13 @@ rules live in `agents/sage/commands/sage.md`.
     "unit-test": true,
     "e2e-test": false,
     "security-review": false
+  },
+  "interaction": {
+    "runPolicy": "until-gate",
+    "questionPolicy": "batch-independent",
+    "maxQuestionsPerCheckpoint": 3,
+    "autoDecideReversible": true,
+    "continueAfterHandoff": true
   }
 }
 ```
@@ -145,20 +188,22 @@ the first:**
    Check each step against the real code/schema, hunt the weak points (wrong trust
    boundary, missed error path, a step that contradicts an existing rule, a
    simpler route), and **end the flow with an Open Questions list**. Then grill
-   the open questions with the human — **not a wall of questions, one at a time:**
+   the open questions with the human according to their dependencies:
 
    - **Split fact from decision.** If it's a _fact_ (does this export exist? what
      does this schema allow?), **look it up in the code yourself — never ask.**
      Only genuine _decisions_ — the ones that are the human's to make — go to them.
-   - **One question at a time, each with your recommended answer.** Ask the single
-     most-blocking open question, propose the answer you'd pick and why, and
-     **wait** for the reply before the next. Walk the decision tree branch by
-     branch, resolving dependencies in order — don't jump ahead.
+   - **Batch independent decisions.** Combine two or three questions only when
+     none of their answers changes another question. Give a recommended answer
+     and one concise reason for each.
+   - **Dependent decisions stay one at a time.** Ask the single most-blocking
+     question with your recommendation, wait, then compute the next branch.
    - **Sharpen fuzzy terms.** If a word is overloaded ("account → Customer or
      User?"), pin it down before building on it.
-   - **Do not code past a doubt, and do not enact the plan until the human
-     confirms shared understanding.** A flow that was built but never grilled is
-     only half done.
+   - **Do not code past an open material decision.** When skeptical verification
+     finds no implementation-shaping question and the verdict is
+     `proceed|warn`, mark `design-clear` and return to the active `/sage` run
+     without inventing a confirmation gate.
 
    **When the request itself is foggy** — ambiguous before there's even a flow to
    verify — use the §0 route. `/sage-grill` resolves single-session product
@@ -189,7 +234,10 @@ Do these in order. Do not skip. Do not assume you already know the answer.
    `sales`, `marketing`, `finance`, `legal`, `writer`, `teacher` … or **any
    role the question implies**. **Infer it yourself; never make the user type
    "as a developer / scientist / salesperson".**
-   **Roles can hand off between phases** — a single task may use more than one:
+   **Load one primary role, then hand off only when the next phase has materially
+   different failure modes.** A role handoff adds context; it cannot unload the
+   previous file, so do not stack generic roles ceremonially. A task may still
+   use more than one when the lens genuinely changes:
 
    | Phase            | Role                          |
    | ---------------- | ----------------------------- |
@@ -202,12 +250,18 @@ Do these in order. Do not skip. Do not assume you already know the answer.
    `Role: <new-lens> [loaded] — handoff from <prev-lens>`
 
    **For each role** open `agents/sage/roles/role-<lens>.md`:
-   - **Found** → read it, adopt as-is. Output: `Role: <lens> [loaded]`
-     Do not re-derive. Update the file after the task if something new was learned.
-   - **Missing** → write it to disk now, before the next step (format in §2:
-     Expertise + Pitfalls + How I work). Output: `Role: <lens> [created]`
+   - **Found + `status: approved`** → read and adopt. Output:
+     `Role: <lens> [loaded]`. Do not re-derive.
+   - **Found + `status: proposed`** → use it as an advisory lens, not binding team
+     policy. Output: `Role: <lens> [proposed]`.
+   - **Missing** → write a compact role with `status: proposed` before the next
+     step (format in §2: Expertise + Pitfalls + How I work). Output:
+     `Role: <lens> [created · proposed]`.
 
-   **Never start a phase without outputting its role line.**
+   Role files describe expertise and failure modes only. They MUST NOT introduce
+   `ask`, `wait`, `stop`, or `approval` gates; §1.4 owns those centrally. Keep
+   version numbers, source paths, and reusable assets in domain knowledge/source,
+   not roles. Never start a phase that requires a new lens without its role line.
 
 2. **Read the knowledge — index first, then only what's relevant.** Open the
    domain's `index.md`, read `context.md` when it exists, read `rules.md`, and
@@ -329,6 +383,36 @@ Do these in order. Do not skip. Do not assume you already know the answer.
      State at each phase start: `[parallel: A, B running]` or
      `[sequential: C — depends on A, B]`.
 
+   **Run-until-gate loop.** Under `interaction.runPolicy: "until-gate"`, the
+   parent `/sage` owns continuation:
+
+   ```text
+   while uncompleted work exists:
+     run every open + unblocked task as the next frontier wave
+     parallelize only independent work
+     choose and record defaults for internal + reversible decisions
+     if independent human decisions exist:
+       batch at most maxQuestionsPerCheckpoint and wait
+     else if a dependent human decision exists:
+       ask the most-blocking decision and wait
+     else:
+       continue immediately to the next wave
+   ```
+
+   Closing a ticket, command, handoff, checkpoint, or phase is a state
+   transition, not a reason to finish the turn. A child Grill/Flow/Wayfinder
+   summary returns its clear/spec-ready/design-clear state to the active parent;
+   when `continueAfterHandoff` is true, the parent consumes it immediately.
+   Standalone child commands still return their artifact/summary because no
+   parent run exists.
+
+   Stop only for a material human-owned decision; HIGH or
+   destructive/irreversible work; a meaningful scope/destination/public-contract
+   change; auth/payment/PII trust-boundary approval; missing access or required
+   manual external action; a failed critical control; a matched block/reject; or
+   true completion. `strict` may add command checkpoints but cannot remove any
+   safety gate.
+
    Open your reply with the header (§4), then act on the verdict. Apply
    enforcement from the matched rules (§5) — a `block` rule overrides your plan.
 
@@ -441,6 +525,7 @@ miss, **not a motivational bio**.
 role: dev
 title: Senior Developer
 covers: [backend, api, billing] # topics that map to this role
+status: approved # approved | proposed
 updated: 2026-06-17
 ---
 
@@ -455,13 +540,14 @@ updated: 2026-06-17
 ## How I work
 
 - Reuse before writing; follow the domain's `rules.md`.
-- Name the blast radius; stop on HIGH risk.
+- Name the blast radius and pass risk drivers to the central §1.4 policy.
 ```
 
 **Expertise** tells the role what it's strong at, so Sage answers from it; if a
 request falls outside it, don't fake it — switch to (or create) the role that owns
 it. **Pitfalls** is what makes the role earn its keep: the mistakes a senior in
-this lens is there to prevent.
+this lens is there to prevent. Keep each role roughly 80–150 words; it is a lens,
+not a second protocol.
 
 ---
 

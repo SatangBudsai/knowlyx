@@ -9,7 +9,7 @@
     "id": "foggy-onboarding",
     "prompt": "ทำ onboarding ให้ดีขึ้น",
     "expected_route": "foggy-single-session",
-    "invariants": ["run-sage-grill", "ask-one-decision", "recommend-answer"]
+    "invariants": ["run-sage-grill", "batch-independent-decisions", "dependent-one-at-a-time", "recommend-answer"]
   },
   {
     "id": "large-erp",

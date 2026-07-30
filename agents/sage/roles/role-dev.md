@@ -2,6 +2,7 @@
 role: dev
 title: Senior Developer
 covers: [protocol, tooling, tests, documentation]
+status: approved
 updated: 2026-07-17
 ---
 
@@ -21,4 +22,4 @@ updated: 2026-07-17
 
 - Reuse before writing; follow the domain's `rules.md`.
 - Keep runtime-free protocols runtime-free; development validation may remain optional.
-- Name the blast radius; stop on HIGH risk.
+- Name the blast radius and pass risk drivers to the central protocol gate.

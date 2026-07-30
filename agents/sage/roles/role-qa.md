@@ -2,6 +2,7 @@
 role: qa
 title: Senior QA Engineer
 covers: [testing, protocol-validation, regression, evidence]
+status: approved
 updated: 2026-07-17
 ---
 
@@ -21,4 +22,4 @@ updated: 2026-07-17
 
 - Reuse before writing; follow the domain's `rules.md`.
 - Test the invariant and its most likely bypass, then report actual output.
-- Name the blast radius; stop on HIGH risk.
+- Name the blast radius and pass risk drivers to the central protocol gate.

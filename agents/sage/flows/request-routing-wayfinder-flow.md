@@ -2,7 +2,7 @@
 
 > เอกสารนี้กำหนดเส้นทางของ Sage สำหรับคำขอที่ชัด, คลุมเครือแต่จบได้ใน session
 > เดียว และงานใหญ่เกินหนึ่ง session รวมถึง durable artifacts, domain glossary,
-> ticket frontier และ handoff ไป `/sage-flow` อ้างอิง source จริง ณ 2026-07-17
+> ticket frontier และ handoff ไป `/sage-flow` อ้างอิง source จริง ณ 2026-07-30
 
 ## 1. Header + design decisions
 
@@ -25,6 +25,10 @@ Design decisions:
   ทันทีเมื่อ term ถูกตกลง ไม่เก็บ implementation detail หรือ decision rationale
 - `/sage-flow` consume resolved product decisions; ถ้า code/schema ขัดกับ decision
   ให้ reopen decision โดยอ้างหลักฐานใหม่ ไม่ถามซ้ำโดยไม่มีเหตุ
+- ภายใต้ `runPolicy: until-gate` การจบ chart/ticket/handoff ไม่ใช่ stop condition;
+  parent `/sage` ทำ frontier wave ถัดไปทันที
+- Grill batch คำถามอิสระได้สูงสุด 3 ข้อ แต่ decision tree ที่คำตอบเปลี่ยน branch
+  ถัดไปยังถามทีละข้อ
 
 **Out of scope**
 
@@ -71,10 +75,10 @@ product intent เท่านั้น HITL ticket ปิดได้จาก 
         └─ /sage-wayfinder chart
              ├─ map destination + fog + out-of-scope
              ├─ create research/prototype/grilling/task tickets
-             └─ work one frontier ticket per session
+             └─ work repeated frontier waves until a material gate
                     │
                     ├─ more fog → add/wire tickets
-                    └─ map clear → synthesize spec → /sage-flow
+                    └─ map clear → synthesize spec → /sage-flow → parent continues
 ```
 
 **หัวใจ:** Grill resolves a decision tree; Wayfinder persists and coordinates a
@@ -92,7 +96,8 @@ condition ต่างกันจึงไม่ถามหรือเก็�
 - ตรวจว่า fog เหลือมากกว่าหนึ่ง session หรือมี independent research/prototype/
   decision branches ที่ต้อง coordinate หรือไม่
 - `clear-single-session` เมื่อ implementation path อาจซับซ้อนแต่ product decision ชัด
-- `foggy-single-session` เมื่อ decision tree สามารถเดินทีละคำถามใน session เดียว
+- `foggy-single-session` เมื่อ decision tree สามารถปิดด้วย dependency-safe
+  checkpoints ใน session เดียว
 - `large-multi-session` เมื่อยังเขียน complete flow โดยไม่เดาไม่ได้และ route เกิน
   session เดียว
 - Reclassify เมื่อ research พบ fog หรือ when no-fog early exit proves work smaller
@@ -103,7 +108,8 @@ condition ต่างกันจึงไม่ถามหรือเก็�
 
 - โหลด role, domain index/rules/decisions และ `context.md` เมื่อมี
 - ค้น facts จาก code/schema/docs เอง
-- ถาม most-blocking genuine decision ทีละข้อ พร้อม recommendation
+- batch genuine decisions ที่อิสระ 2–3 ข้อพร้อม recommendation; decision ที่
+  dependent ถาม most-blocking branch ทีละข้อ
 - ก่อนปิด material decision ให้ทดสอบ concrete boundary/counterexample อย่างน้อย
   หนึ่งกรณี เช่น retry, partial failure, permission mismatch หรือศัพท์ชนกัน
 - เมื่อ statement ของ human ขัดกับ code ให้แสดง contradiction เป็น fact + decision
@@ -149,18 +155,22 @@ code/schema หากหลักฐานใหม่ขัด decision เด�
   `Not yet specified`, `Out of scope`, ticket index; full answer อยู่ ticket เดียว
 - Create tickets ก่อน แล้ว wire `blocked_by` รอบสองเมื่อ ids พร้อม
 
-### STEP 6 — Work the frontier
+### STEP 6 — Work frontier waves
 
-**System:** Sage Wayfinder session
+**System:** Sage Wayfinder + parent `/sage`
 
 - โหลด map low-resolution ไม่อ่านทุก ticket
-- เลือก first open, unblocked, unclaimed ticket หรือ ticket ที่ user ระบุ
-- Re-read canonical state แล้ว claim ก่อน work
-- หนึ่ง session ปิดไม่เกินหนึ่ง non-research ticket
+- คำนวณ open, unblocked, unclaimed tickets ทั้ง frontier หรือ scope ที่ user ระบุ
+- Re-read canonical state แล้ว claim แต่ละ ticket ก่อน work
 - `research` เป็น AFK; `prototype` และ `grilling` เป็น HITL; `task` เป็น HITL/AFK
-- บันทึก resolution ใน ticket, close, แล้วเพิ่ม one-line gist + link ที่ map
+- ทำ AFK tickets ที่อิสระแบบ parallel; batch HITL ที่อิสระตาม question policy;
+  dependent HITL ถามทีละ branch
+- บันทึกทุก resolution ใน ticket, close, แล้วเพิ่ม one-line gist + link ที่ map
 - เพิ่ม/wire newly visible tickets และลบ fog patch ที่ graduate แล้ว
 - Ticket ที่พ้น destination → close เป็น out-of-scope ไม่เพิ่มใน decisions-so-far
+- Recompute frontier และเข้า wave ถัดไปทันที
+- หยุดเฉพาะ material HITL, HIGH/destructive, missing access/manual action,
+  failed critical evidence หรือ map complete; `strict` จึงค่อยคืนหลังแต่ละ wave
 
 ### STEP 7 — Complete Wayfinder and hand off
 
@@ -174,7 +184,9 @@ Complete เมื่อ:
 - decisions-so-far link ไป source ticket ครบ
 
 จากนั้น synthesize `agents/sage/flows/<slug>-spec.md` โดยไม่ re-interview และส่ง
-ไป `/sage-flow` `/sage-flow` ห้ามเริ่มจาก map ที่ยังไม่ complete
+ไป `/sage-flow` `/sage-flow` ห้ามเริ่มจาก map ที่ยังไม่ complete ถ้ามี active
+parent และ `continueAfterHandoff: true` ให้ส่ง `spec-ready` กลับ parent แล้ว
+เดินต่อทันที
 
 ## 5. State / data handling
 
@@ -185,6 +197,7 @@ Complete เมื่อ:
 | Grill checkpoint | `agents/sage/flows/<slug>-spec.md` | create before first question when checkpoint criteria match; update each answer |
 | Wayfinder map | local `map.md` or configured tracker map | one canonical backend per effort |
 | Wayfinder ticket | local `tickets/<id>.md` or tracker child issue | open → claimed → closed/out-of-scope |
+| Run frontier | active parent `/sage` | recompute หลังทุก ticket/command/handoff/phase |
 | Flow | `agents/sage/flows/<slug>-flow.md` | created only from clear requirements |
 
 Local map frontmatter/fields:
@@ -235,6 +248,7 @@ Illegal transitions:
 - `blocked ticket → claimed`
 - `unclaimed ticket → working` ใน multi-session map
 - `active map → flow` ขณะที่มี open ticket หรือ fog
+- `ticket/command/handoff complete → final` ขณะที่ parent ยังมี unblocked work
 - resolved product decision → flow question ซ้ำโดยไม่มี new contradictory evidence
 
 ## 8. Edge cases & error handling
@@ -251,6 +265,8 @@ Illegal transitions:
 | two sessions claim same local ticket | re-read before claim; second session skips claimed ticket; report conflict if simultaneous write |
 | blocker ถูก reopen | dependent ticket กลับ blocked; ห้าม claim |
 | decision invalidates tickets | update/close invalid tickets and blocking edges before continuing |
+| frontier มีทั้ง AFK และ HITL | ทำ AFK branches ที่ปลอดภัยต่อ; gate เฉพาะ branch ที่ต้อง human |
+| map complete ใน active parent run | synthesize spec แล้ว continue ไป Flow ทันทีเมื่อ configured |
 | tracker unavailable | fallback local Markdown; do not block planning on external integration |
 | term is implementation detail | ไม่เขียน context; เก็บใน spec/flow/decision ตามชนิด |
 
@@ -258,7 +274,8 @@ Illegal transitions:
 
 - Map/tickets ห้ามเก็บ secrets, credentials หรือ PII values; link ไป approved store
 - Tracker writes เป็น external mutation ใช้เฉพาะเมื่อ user/repo วาง tracker ใน scope
-- Local claim ไม่ atomic; re-read ก่อน claim และใช้ one-ticket-per-session ลด collision
+- Local claim ไม่ atomic; re-read ก่อนทุก claim, skip conflict และ parallel เฉพาะ
+  ticket ที่ dependency/side effect อิสระ
 - Native tracker assignment/blocking เป็น source of truth เมื่อ tracker backend active
 - HITL ticket ห้าม agent impersonate human
 - Research facts ต้องมี source pointer; recommendation ไม่ใช่ evidence
@@ -283,6 +300,7 @@ Illegal transitions:
 
 - [x] สร้าง canonical `/sage-wayfinder` command
 - [x] เพิ่ม local map/ticket schemas, frontier, blocking, claim และ completion handoff
+- [x] เปลี่ยน execution เป็น repeated frontier waves + continue-after-handoff
 - [x] เพิ่ม optional tracker backend without hard dependency
 
 ### Distribution and proof
@@ -305,7 +323,8 @@ optional tracker backend ไม่สร้าง external mutation โดยอ
 - Checkpoint ก่อนคำถามแรกป้องกันคำตอบหายกลาง session
 - Scenario challenge เกิดก่อนปิด material decision ไม่เพิ่ม friction ให้ trivial choice
 - Local map มี ticket index เพราะไม่มี tracker query แต่ answer detail ยังอยู่ที่ ticket เดียว
-- One-ticket-per-session และ claim rules ลด duplicate work โดยไม่อ้าง atomicity ที่ไม่มี
+- Frontier waves รักษา claim/re-read rules และ parallel เฉพาะ independent work
+  จึงเพิ่ม throughput โดยไม่อ้าง atomicity ที่ไม่มี
 - Flow ไม่ถาม resolved product decision ซ้ำ เว้นแต่มี new contradictory evidence
 - No-fog early exit ป้องกัน Wayfinder กลายเป็นพิธีกรรมสำหรับงานเล็ก
 

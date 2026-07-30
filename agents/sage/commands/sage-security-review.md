@@ -70,7 +70,7 @@ Consider only what the change actually does — don't force irrelevant categorie
   on an expensive or abusable endpoint.
 - **Config** — permissive CORS, debug on, verbose errors leaking internals.
 
-Then output the intent block and wait for `proceed`/`ask`/`reject`:
+Then output the intent block and apply the central verdict:
 
 ```text
 Repo    : <repo-root>
@@ -81,8 +81,12 @@ Sinks   : <untrusted-input → dangerous-sink paths found>
 Risk    : LOW | MEDIUM | HIGH · confidence:<low|medium|high> — <why>
 Drivers : <auth|money|PII|secrets|trust-boundary driver → failure mode>
 Evidence: <parent required control → review/test/artifact>
-Decision: proceed | ask | reject
+Decision: proceed | warn | ask | reject
 ```
+
+`proceed|warn` continues with the read-only review and any already authorized,
+bounded fixes. `ask|reject` returns before the affected mutation. The specialist
+does not add a second approval gate.
 
 ---
 
@@ -155,4 +159,6 @@ Map each parent-run security driver to the exact guard/test/finding, or state th
 ──────────────────────────────────────────────────
 ```
 
-Then stop.
+When invoked by an active `/sage` run, return findings/control evidence to the
+parent and continue with remaining validation/docs work. A standalone invocation
+prints the summary and returns because no parent run exists.

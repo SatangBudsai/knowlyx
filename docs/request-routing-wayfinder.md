@@ -2,7 +2,7 @@
 
 > Sage เลือกวิธีทำงานจาก “decision fog ที่ยังเหลือ” ก่อนออกแบบหรือเขียนโค้ด
 > งานชัดเดินหน้าได้ งานคลุมเครือใน session เดียวเข้า Grill และงานใหญ่ข้าม
-> session เข้า Wayfinder อ้างอิง protocol จริง ณ 2026-07-17
+> session เข้า Wayfinder อ้างอิง protocol จริง ณ 2026-07-30
 
 ## 1. Actors & Systems
 
@@ -74,7 +74,7 @@ source-of-truth, migration, integrations และ sequencing ก่อนสร
 Grill ทำห้าสิ่งตามลำดับ:
 
 1. อ่าน domain glossary/rules/decisions และค้น code/schema facts เอง
-2. สร้าง decision tree แล้วถาม most-blocking decision ทีละข้อ
+2. สร้าง decision tree, batch คำถามอิสระ 2–3 ข้อ และถาม dependent branch ทีละข้อ
 3. แนะนำคำตอบ แต่ไม่ตอบ HITL decision แทน human
 4. Stress-test material answer ด้วย concrete scenario/counterexample
 5. อัปเดต glossary และ checkpoint ก่อนถามข้อต่อไป
@@ -114,10 +114,10 @@ hard-to-reverse trade-off อยู่ใน `decisions/` ไม่ปนใน 
 
 ### Exit contract
 
-Grill ออกได้เมื่อ human ยืนยัน `requirements-clear`: intent, success outcome,
-terms, scope/out-of-scope และ product trade-offs ปิดครบ Flow ห้ามถามซ้ำ เว้นแต่
-พบ code/schema evidence ใหม่ที่ขัด decision เดิม และต้อง reopen โดยระบุชื่อ
-decision กับหลักฐาน
+Grill ออกได้เมื่อ `requirements-clear`: intent, success outcome, terms,
+scope/out-of-scope และ product trade-offs ปิดครบ Flow ห้ามถามซ้ำ เว้นแต่พบ
+code/schema evidence ใหม่ที่ขัด decision เดิม และต้อง reopen โดยระบุชื่อ
+decision กับหลักฐาน เมื่อมี active parent run handoff นี้เดินต่อไป Flow ทันที
 
 ## 5. Sage Wayfinder — persistent multi-session fog
 
@@ -130,17 +130,21 @@ Wayfinder มีสองโหมด:
 3. ถ้าไม่มี fog → early exit; ไม่สร้าง map
 4. สร้าง map/tickets
 5. Wire blocking หลัง ticket ids พร้อม
-6. หยุดโดยไม่ hand-resolve ticket
+6. ตั้ง map เป็น active แล้วเริ่ม frontier wave ทันทีภายใต้ `until-gate`
 
-### Work one ticket
+### Work frontier waves
 
 1. โหลด map แบบ low-resolution
-2. เลือก ticket จาก Frontier: open + unblocked + unclaimed
-3. Claim ก่อน work
-4. Resolve หนึ่ง non-research ticket ต่อ session
-5. เก็บ full resolution ใน ticket
-6. Map เก็บเพียง one-line gist + link
-7. Graduate fog ที่ sharp แล้วเป็น tickets ใหม่
+2. คำนวณทุก ticket ใน Frontier: open + unblocked + unclaimed
+3. Re-read และ claim แต่ละ ticket ก่อน work
+4. Resolve AFK tickets ที่อิสระแบบ parallel
+5. Batch independent HITL decisions ตาม question policy; dependent branch
+   ยังคงถามทีละข้อ
+6. เก็บ full resolution ใน ticket และ map เก็บเพียง one-line gist + link
+7. Graduate fog ที่ sharp แล้วเป็น tickets ใหม่, recompute frontier และทำ wave
+   ถัดไปทันที
+8. หยุดเฉพาะ material HITL, HIGH/destructive, missing access/manual action,
+   failed critical evidence หรือ completion
 
 ## 6. Local Markdown backend
 
@@ -186,6 +190,10 @@ route
 no open tickets + no fog → map complete → spec-ready → flow
 ```
 
+ภายใต้ `interaction.runPolicy: until-gate`, การจบ ticket/chart/handoff/phase
+ไม่ใช่ terminal state Parent `/sage` จะ consume `requirements-clear`,
+`spec-ready` และ `design-clear` แล้วทำงานที่ยัง unblocked ต่อ
+
 Invalid states:
 
 - HITL ticket ปิดโดย agent โดยไม่มี human answer
@@ -202,6 +210,8 @@ Invalid states:
 | Human statement ขัด code | แสดง fact + ถาม decision; agent ห้ามเลือกเอง |
 | Grill session ถูกตัด | resume จาก checkpoint spec |
 | Local sessions claim ชนกัน | re-read ก่อน claim; second session ข้าม/report conflict |
+| Frontier มี AFK + HITL พร้อมกัน | ทำ AFK branch ที่ปลอดภัยต่อ; gate เฉพาะ HITL branch |
+| Map complete ใน active parent | synthesize spec แล้ว continue ไป Flow เมื่อ configured |
 | Decision ทำให้ ticket อื่น invalid | ปิด/update ticket และ dependency ก่อนต่อ |
 | Tracker ใช้ไม่ได้ | fallback local Markdown |
 | Term เป็น implementation detail | เก็บใน spec/flow ไม่ใส่ context |
@@ -210,7 +220,8 @@ Invalid states:
 
 - Maps/tickets ไม่เก็บ secrets หรือ PII values
 - Tracker writes ต้องอยู่ใน user scope
-- Local claim เป็น cooperative ไม่ใช่ atomic; ต้อง re-read ก่อน claim
+- Local claim เป็น cooperative ไม่ใช่ atomic; ต้อง re-read ก่อนทุก claim และ
+  parallel เฉพาะ ticket ที่ dependency/side effect อิสระ
 - Research answer มี source pointer; recommendation ไม่ใช่ evidence
 - HITL agent ห้าม impersonate human
 

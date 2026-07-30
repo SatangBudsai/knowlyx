@@ -67,11 +67,11 @@ toolchain is the human's call.
 
 ## Step 3 — Ask before running (mandatory gate)
 
-Never launch a browser or fire load without confirming first. Use AskUserQuestion:
+Resolve routine preferences from repo evidence before asking:
 
-- **Which tool / mode** — confirm the tool (it **must match the repo's stack**)
-  and the mode (e2e browser vs load). If a setup already exists, default to it and
-  just confirm; if none, propose the stack-matching tool and ask.
+- **Which tool / mode** — reuse the existing stack-matching setup. If none
+  exists, propose the smallest compatible tool; ask only when adding it changes
+  the public/dev contract or dependency policy.
 - **Scope** — happy path only, or happy path + the key edge cases from the flow.
 - **Retest policy** — after the first run, **re-run on failure? how many
   retries?** and **should this be saved as a repeatable test** (committed spec)
@@ -79,7 +79,11 @@ Never launch a browser or fire load without confirming first. Use AskUserQuestio
 - **Environment** — which base URL / account / seed, and confirm no real
   money/email/production side effects (sandbox only).
 
-Then output the intent block and wait for `proceed`/`ask`/`reject`:
+Use existing test conventions/defaults for scope and retry policy and record the
+assumption. Ask only for a material environment/access/side-effect decision;
+batch independent questions according to interaction policy.
+
+Then output the intent block and apply the central verdict:
 
 ```text
 Repo    : <repo-root>
@@ -93,8 +97,11 @@ Env     : <base URL · account/seed · mocked externals>
 Risk    : LOW | MEDIUM | HIGH · confidence:<low|medium|high> — <why>
 Drivers : <risk driver exercised by this journey>
 Evidence: <required control → assertion/artifact, or "ordinary journey coverage">
-Decision: proceed | ask | reject
+Decision: proceed | warn | ask | reject
 ```
+
+`proceed|warn` continues directly in the safe local/sandbox environment.
+`ask|reject` returns before browser/load execution.
 
 ---
 
@@ -178,4 +185,6 @@ Map each parent-run risk driver to its exact assertion/artifact, or state the ga
 ──────────────────────────────────────────────────
 ```
 
-Then stop.
+When invoked by an active `/sage` run, return the E2E evidence to the parent and
+continue with remaining validation/docs work. A standalone invocation prints
+the summary and returns because no parent run exists.

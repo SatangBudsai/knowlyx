@@ -34,6 +34,8 @@ class RequestRoutingProtocolTests(unittest.TestCase):
             "run-sage-wayfinder",
             "do-not-ask-fact",
             "human-answers-hitl",
+            "batch-independent-decisions",
+            "dependent-one-at-a-time",
             "update-context-inline",
             "reopen-only-with-new-evidence",
         ):
@@ -64,6 +66,8 @@ class RequestRoutingProtocolTests(unittest.TestCase):
             "context.md",
             "concrete boundary/counterexample",
             "A HITL decision is never answered by the agent",
+            "For independent decisions, ask two or three together",
+            "For a dependent tree, ask the single most-blocking question",
             "requirements-clear",
             "must not ask a resolved product question again",
             "/sage-wayfinder",
@@ -88,7 +92,9 @@ class RequestRoutingProtocolTests(unittest.TestCase):
             "assignee",
             "frontier",
             "No-fog early exit",
-            "One session resolves at most one non-research ticket",
+            "Work frontier waves",
+            "One frontier wave may close multiple independent tickets",
+            "continueAfterHandoff",
             "agents/sage/flows/<slug>-spec.md",
         ):
             with self.subTest(marker=marker):
