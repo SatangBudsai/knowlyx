@@ -22,11 +22,29 @@ four questions against your team's rules, and _then_ codes — or stops and asks
 | 🛡️  | **Is it safe?**   | what's the blast radius — money, auth, data?              |
 | 🤝  | **Did we agree?** | does it respect the rules in `agents/sage/`?              |
 
-No server, no build, no Python. Sage is a cognition protocol —
+The release you can install today has no server, build, or Python. Sage is a
+cognition protocol —
 **[`AGENTS.md`](https://github.com/qorstack/sage/blob/main/AGENTS.md)** plus a
 folder of Markdown commands and team knowledge you read, edit, and `git push`.
 One command installs it; any agent that reads `AGENTS.md` (Claude Code, Cursor,
 Codex, Copilot…) follows it.
+
+## Next architecture — Project DNA (specified, not shipped)
+
+Sage's next architecture is **preparation-first**. It prepares a versioned
+Project DNA snapshot when a project is opened, then agents query only the
+Business, Architecture, Workflow, Design, Reuse, Impact, and Risk context a
+request needs. Changed inputs invalidate only affected facets instead of forcing
+a repository-wide analysis on every request.
+
+The target is a tool-first cognition data plane with progressive context levels
+L0–L4, source fingerprints, provenance, confidence, conflict reporting, and
+human approval for binding knowledge. `AGENTS.md` remains the policy control
+plane and the honest protocol-only fallback during migration.
+
+This is an architecture specification, not an available runtime feature. Read
+the [Project DNA overview](docs/project-dna.md) and the
+[implementation-ready design](agents/sage/flows/project-dna-flow.md).
 
 ## Install — one command
 

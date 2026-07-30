@@ -6,6 +6,12 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
 
 ### Added — cognition upgrades
 
+- **Project DNA architecture specification** — defines Sage's preparation-first
+  cognition data plane: evidence-backed DNA facets, progressive L0–L4 retrieval,
+  source-fingerprint freshness, incremental invalidation, hierarchy/inheritance,
+  tool contracts, human-governed knowledge, compatibility gates, and a phased
+  delivery plan. This is explicitly specification only; the shipped release
+  remains the Markdown protocol until the runtime passes its acceptance gates.
 - **Run-until-gate interaction policy** — version 3 separates checklist mode
   from continuation. The parent `/sage` now consumes Grill/Flow/Wayfinder
   handoffs and completes every unblocked frontier wave until a material

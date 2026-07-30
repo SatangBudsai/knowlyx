@@ -58,4 +58,5 @@ Edit a file, commit, done — the agent follows your team's version.
 ## Domains
 
 - [frontend](frontend/) - static pages, UI, responsive layout, and landing-page design.
+- [product](product/) - Sage product architecture, Project DNA, and cognition data governance.
 - [protocol](protocol/) - Sage cognition policy, risk controls, and cross-command contracts.
