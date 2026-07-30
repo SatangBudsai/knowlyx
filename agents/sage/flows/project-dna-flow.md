@@ -35,9 +35,9 @@ gate อย่างไร ระหว่างที่ Project DNA runtime �
 
 Related decisions:
 
-- [`prepare-dna-before-runtime-reasoning`](../product/decisions/prepare-dna-before-runtime-reasoning.md)
-- [`separate-observations-from-approved-knowledge`](../product/decisions/separate-observations-from-approved-knowledge.md)
-- [`separate-control-plane-from-dna-data-plane`](../product/decisions/separate-control-plane-from-dna-data-plane.md)
+- [`prepare-dna-before-runtime-reasoning`](../sage-product/decisions/prepare-dna-before-runtime-reasoning.md)
+- [`separate-observations-from-approved-knowledge`](../sage-product/decisions/separate-observations-from-approved-knowledge.md)
+- [`separate-control-plane-from-dna-data-plane`](../sage-product/decisions/separate-control-plane-from-dna-data-plane.md)
 
 ### Out of scope
 
@@ -711,7 +711,7 @@ Recommended physical baseline สำหรับ pilot:
   status, enforcement, applies_to, supersedes และ provenance
 - [ ] export approved knowledge กลับเป็น reviewable format ได้; computed cache
   ไม่ถูก commit หรือใช้แทน source
-- [ ] รักษา `.sage-local.json`, slash commands และ installer non-clobber
+- [x] รักษา `.sage-local.json`, slash commands และ installer non-clobber
   guarantees จนมี explicit major-version migration
 - [ ] no-tool agents ใช้ protocol-only mode พร้อมเปิดเผยว่าไม่มี cached DNA;
   ห้าม adapter claim ว่า Project DNA พร้อม

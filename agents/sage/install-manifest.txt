@@ -1,0 +1,24 @@
+# Exact files owned and updated by the Sage installer.
+# Paths are relative to the target repository. Directories and traversal are forbidden.
+agents/sage/install-manifest.txt
+agents/sage/adapter-manifest.txt
+agents/sage/installed-assets.md
+agents/sage/docs-style-template.md
+agents/sage/flows/installer-managed-assets-flow.md
+agents/sage/flows/project-dna-flow.md
+agents/sage/flows/request-routing-wayfinder-flow.md
+agents/sage/flows/risk-controls-flow.md
+agents/sage/flows/run-until-gate-flow.md
+agents/sage/protocol/index.md
+agents/sage/protocol/context.md
+agents/sage/protocol/decisions/continue-until-material-gate.md
+agents/sage/protocol/decisions/detect-picker-capability-not-provider.md
+agents/sage/protocol/decisions/install-only-exact-managed-paths.md
+agents/sage/protocol/decisions/keep-context-separate-from-decisions.md
+agents/sage/protocol/decisions/risk-drivers-own-controls.md
+agents/sage/protocol/decisions/route-by-fog-and-session-span.md
+agents/sage/sage-product/index.md
+agents/sage/sage-product/context.md
+agents/sage/sage-product/decisions/prepare-dna-before-runtime-reasoning.md
+agents/sage/sage-product/decisions/separate-control-plane-from-dna-data-plane.md
+agents/sage/sage-product/decisions/separate-observations-from-approved-knowledge.md

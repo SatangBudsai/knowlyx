@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#050505" />
+    <meta name="sage-version" content="v1.0.0" />
     <title>Sage - Make AI agents think before they code</title>
     <meta
       name="description"
@@ -273,6 +274,24 @@
       .brand img {
         width: 32px;
         height: 32px;
+      }
+
+      .version-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 0 8px;
+        border: 1px solid rgba(113, 215, 255, 0.34);
+        border-radius: 999px;
+        background: rgba(113, 215, 255, 0.08);
+        color: var(--cyan);
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        text-transform: none;
+        white-space: nowrap;
       }
 
       .hero {
@@ -971,6 +990,13 @@
         font-size: 13px;
       }
 
+      .footer-product {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
       .foot-links {
         display: flex;
         gap: 18px;
@@ -1282,6 +1308,11 @@
         <a class="brand" href="#">
           <img src="logo.png" alt="" />
           <span>Sage</span>
+          <span
+            class="version-badge"
+            aria-label="Current Sage version v1.0.0"
+            >v1.0.0</span
+          >
         </a>
         <div class="nav-right">
           <a
@@ -2034,7 +2065,14 @@ Reuse payments/idempotency.py; never roll your own.</pre
 
     <footer>
       <div class="wrap footer-inner">
-        <div>Sage - cognitive enforcement for AI software development</div>
+        <div class="footer-product">
+          <span>Sage - cognitive enforcement for AI software development</span>
+          <span
+            class="version-badge"
+            aria-label="Current Sage version v1.0.0"
+            >v1.0.0</span
+          >
+        </div>
         <div class="foot-links">
           <a href="#why">Why</a>
           <a href="#proof">Proof</a>

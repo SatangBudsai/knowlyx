@@ -12,6 +12,11 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
   tool contracts, human-governed knowledge, compatibility gates, and a phased
   delivery plan. This is explicitly specification only; the shipped release
   remains the Markdown protocol until the runtime passes its acceptance gates.
+- **Manifest-driven safe installer** — Bash and PowerShell now preflight and
+  install the same exact Sage-owned asset list, including Project DNA and
+  protocol flows. Adapter cleanup uses an append-only exact basename manifest
+  instead of deleting every `sage*` file, so custom knowledge, flows, docs,
+  local config, and unrelated adapter files survive fresh installs and upgrades.
 - **Run-until-gate interaction policy** — version 3 separates checklist mode
   from continuation. The parent `/sage` now consumes Grill/Flow/Wayfinder
   handoffs and completes every unblocked frontier wave until a material

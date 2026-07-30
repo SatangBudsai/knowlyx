@@ -1,4 +1,4 @@
-# Product knowledge
+# Sage product knowledge
 
 Decisions that govern Sage's product architecture and the future Project DNA
 cognition data plane.

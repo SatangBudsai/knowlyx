@@ -329,7 +329,7 @@ cache ลบและ rebuild ได้ ส่วน approved knowledge ต้�
 ### Compatibility gates
 
 - [ ] import current Markdown knowledge without losing enforcement/scope/history
-- [ ] preserve `.sage-local.json`, slash commands and installer non-clobber
+- [x] preserve `.sage-local.json`, slash commands and installer non-clobber
 - [ ] no-tool agents remain honest protocol-only clients
 - [ ] disabling the engine loses no approved knowledge
 - [ ] update “no runtime” public contract only after runtime passes acceptance

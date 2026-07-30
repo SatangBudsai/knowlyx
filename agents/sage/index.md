@@ -29,11 +29,18 @@ updates every agent.
 
 `flows/risk-controls-flow.md` defines the current end-to-end contract for turning
 risk drivers into required controls, validation evidence, and residual risk.
+`flows/installer-managed-assets-flow.md` defines the exact install/upgrade
+ownership and preservation contract. `flows/project-dna-flow.md` defines the
+specified (not yet shipped) Project DNA cognition data plane.
 
 `roles/` is Sage's library of compact senior lenses: Expertise, Pitfalls, and How
 I work. Approved roles are binding; newly AI-created roles start as
 `status: proposed`. Roles describe domain failure modes, not approval gates,
 version facts, paths, or reusable assets.
+
+[`installed-assets.md`](installed-assets.md) lists the exact files the official
+installer owns and refreshes. All unlisted knowledge and flow paths remain
+team-owned.
 
 ## Example entry
 
@@ -57,6 +64,5 @@ Edit a file, commit, done — the agent follows your team's version.
 
 ## Domains
 
-- [frontend](frontend/) - static pages, UI, responsive layout, and landing-page design.
-- [product](product/) - Sage product architecture, Project DNA, and cognition data governance.
+- [sage-product](sage-product/) - Sage product architecture, Project DNA, and cognition data governance.
 - [protocol](protocol/) - Sage cognition policy, risk controls, and cross-command contracts.

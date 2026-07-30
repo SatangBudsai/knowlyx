@@ -2,11 +2,11 @@
 id: prepare-dna-before-runtime-reasoning
 type: team_decision
 title: Prepare DNA before runtime reasoning
-domain: product
+domain: sage-product
 tags: [project-dna, preparation, cache, performance]
 status: proposed
 enforcement: warn
-applies_to: [product, "project-dna/**"]
+applies_to: [sage-product, "project-dna/**"]
 source: ai
 supersedes: ""
 related: [separate-control-plane-from-dna-data-plane]

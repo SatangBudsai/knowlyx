@@ -8,10 +8,11 @@
 #   a = select/clear all         Enter = confirm
 # Number keys are plain characters, so this works in every console — including
 # git-bash/MSYS, which swallows arrow keys.
-# It NEVER touches your own knowledge under agents/sage/<domain>/.
+# It updates only exact Sage-owned paths; custom knowledge/flows/docs survive.
 #
 # Non-interactive? Prefix with SAGE_TOOLS:
 #   SAGE_TOOLS='claude,cursor' bash -c "$(curl -fsSL .../install.sh)"   (or 'all')
+# Local development/tests may set SAGE_INSTALL_SOURCE to a Sage checkout.
 set -eu
 
 REPO="https://github.com/qorstack/sage"
@@ -19,6 +20,9 @@ ALL="claude codex cursor copilot gemini windsurf cline"
 NTOOLS=7
 TTY_STTY=""
 TMP=""
+SOURCE_ROOT=""
+INSTALL_LIST=""
+ADAPTER_LIST=""
 
 cleanup() {
   [ -n "$TTY_STTY" ] && stty "$TTY_STTY" </dev/tty 2>/dev/null || true
@@ -46,6 +50,23 @@ key_name() {
     cline) echo "Cline" ;; copilot) echo "GitHub Copilot" ;; codex) echo "Codex" ;;
     gemini) echo "Gemini CLI" ;; *) echo "" ;;
   esac
+}
+
+adapter_managed_path() { # $1 = tool key, $2 = Sage adapter basename
+  case "$1" in
+    claude) echo ".claude/commands/$2.md" ;;
+    codex) echo ".codex/prompts/$2.md" ;;
+    cursor) echo ".cursor/rules/$2.mdc" ;;
+    copilot) echo ".github/instructions/$2.instructions.md" ;;
+    windsurf) echo ".windsurf/rules/$2.md" ;;
+    cline) echo ".clinerules/$2.md" ;;
+    *) echo "" ;;
+  esac
+}
+
+fail() {
+  echo "Sage: $1"
+  exit 1
 }
 
 parse_tools() { # $1 = raw string -> sets $picked
@@ -162,50 +183,114 @@ if [ -z "$(printf '%s' "$picked" | tr -d ' ')" ]; then
   exit 0
 fi
 
-if ! command -v git >/dev/null 2>&1; then
+if [ -z "${SAGE_INSTALL_SOURCE:-}" ] && ! command -v git >/dev/null 2>&1; then
   echo "Sage: git is required but was not found. Install Git, then re-run."
   exit 1
 fi
 
 TMP="$(mktemp -d)"
-printf 'Sage: fetching latest from qorstack/sage ...\n'
-if ! git clone --depth 1 --quiet "$REPO" "$TMP" >/dev/null 2>&1; then
-  echo "Sage: git clone failed. Check your network and try again."
-  exit 1
+if [ -n "${SAGE_INSTALL_SOURCE:-}" ]; then
+  [ -d "$SAGE_INSTALL_SOURCE" ] || fail "SAGE_INSTALL_SOURCE is not a directory: $SAGE_INSTALL_SOURCE"
+  printf 'Sage: loading local install source ...\n'
+  SOURCE_ROOT=$(cd "$SAGE_INSTALL_SOURCE" && pwd -P) || fail "could not resolve SAGE_INSTALL_SOURCE."
+  TARGET_ROOT=$(pwd -P)
+  [ "$SOURCE_ROOT" != "$TARGET_ROOT" ] || fail "SAGE_INSTALL_SOURCE must not be the target repository."
+  printf '  \342\234\223 source ready\n'
+else
+  printf 'Sage: fetching latest from qorstack/sage ...\n'
+  SOURCE_ROOT="$TMP/source"
+  if ! git clone --depth 1 --quiet "$REPO" "$SOURCE_ROOT" >/dev/null 2>&1; then
+    echo "Sage: git clone failed. Check your network and try again."
+    exit 1
+  fi
+  printf '  \342\234\223 fetched\n'
 fi
-printf '  \342\234\223 fetched\n'
 
-# --- protocol + Sage-owned files. Clears only what Sage owns; your knowledge
-#     (agents/sage/<domain>/, roles/, flows/, index.md), generated docs, and
-#     .sage-local.json are never touched. ---
+# --- preflight every distribution input before the first target write ---
+[ -f "$SOURCE_ROOT/AGENTS.md" ] || fail "source is missing AGENTS.md."
+[ -d "$SOURCE_ROOT/agents/sage/commands" ] || fail "source is missing agents/sage/commands/."
+[ -f "$SOURCE_ROOT/agents/sage/index.md" ] || fail "source is missing agents/sage/index.md."
+[ -d "$SOURCE_ROOT/agents/sage/roles" ] || fail "source is missing agents/sage/roles/."
+[ -f "$SOURCE_ROOT/agents/sage/install-manifest.txt" ] || fail "source is missing agents/sage/install-manifest.txt."
+[ -f "$SOURCE_ROOT/agents/sage/adapter-manifest.txt" ] || fail "source is missing agents/sage/adapter-manifest.txt."
+
+INSTALL_LIST="$TMP/.sage-install-files"
+ADAPTER_LIST="$TMP/.sage-adapter-files"
+: >"$INSTALL_LIST"
+: >"$ADAPTER_LIST"
+
+while IFS= read -r raw || [ -n "$raw" ]; do
+  rel=$(printf '%s' "$raw" | tr -d '\r')
+  case "$rel" in ""|\#*) continue ;; esac
+  case "$rel" in
+    /* | [A-Za-z]:* | *\\* | */ | . | .. | ./* | ../* | */./* | */../* | */. | */.. | *" "* | *"	"*)
+      fail "unsafe install manifest path: $rel" ;;
+  esac
+  [ -f "$SOURCE_ROOT/$rel" ] || fail "install manifest source is missing: $rel"
+  grep -Fqx "$rel" "$INSTALL_LIST" && fail "duplicate install manifest path: $rel"
+  printf '%s\n' "$rel" >>"$INSTALL_LIST"
+done <"$SOURCE_ROOT/agents/sage/install-manifest.txt"
+[ -s "$INSTALL_LIST" ] || fail "install manifest contains no managed files."
+
+while IFS= read -r raw || [ -n "$raw" ]; do
+  base=$(printf '%s' "$raw" | tr -d '\r')
+  case "$base" in ""|\#*) continue ;; esac
+  case "$base" in *[!a-z0-9-]* | -* | *-) fail "unsafe adapter manifest basename: $base" ;; esac
+  grep -Fqx "$base" "$ADAPTER_LIST" && fail "duplicate adapter manifest basename: $base"
+  printf '%s\n' "$base" >>"$ADAPTER_LIST"
+done <"$SOURCE_ROOT/agents/sage/adapter-manifest.txt"
+[ -s "$ADAPTER_LIST" ] || fail "adapter manifest contains no managed basenames."
+
+for k in $picked; do
+  if [ "$k" = gemini ]; then
+    [ -f "$SOURCE_ROOT/integrations/gemini.md" ] || fail "source is missing the Gemini adapter."
+  else
+    src=$(key_src "$k")
+    [ -d "$SOURCE_ROOT/integrations/$src" ] || fail "source is missing the $(key_name "$k") adapter."
+  fi
+done
+printf '  \342\234\223 preflight passed\n'
+
+# --- protocol + Sage-owned files. Exact manifest paths are reserved; all other
+#     knowledge, role edits, flows, docs, adapters, and .sage-local.json survive. ---
 printf 'Sage: writing protocol + commands ...\n'
-cp "$TMP/AGENTS.md" ./AGENTS.md
+cp "$SOURCE_ROOT/AGENTS.md" ./AGENTS.md
 printf '  \342\234\223 AGENTS.md\n'
 rm -rf agents/sage/commands                       # 100% Sage-owned; clears any old/renamed command
 mkdir -p agents/sage
-cp -r "$TMP/agents/sage/commands" agents/sage/commands
-printf '  \342\234\223 agents/sage/commands/ (%s commands)\n' "$(ls "$TMP/agents/sage/commands"/*.md 2>/dev/null | grep -c . )"
-cp "$TMP/agents/sage/docs-style-template.md" agents/sage/docs-style-template.md
-printf '  \342\234\223 agents/sage/docs-style-template.md\n'
+cp -r "$SOURCE_ROOT/agents/sage/commands" agents/sage/commands
+printf '  \342\234\223 agents/sage/commands/ (%s commands)\n' "$(ls "$SOURCE_ROOT/agents/sage/commands"/*.md 2>/dev/null | grep -c . )"
+
+managed_count=0
+while IFS= read -r rel; do
+  mkdir -p "$(dirname "./$rel")"
+  cp "$SOURCE_ROOT/$rel" "./$rel"
+  managed_count=$((managed_count + 1))
+done <"$INSTALL_LIST"
+printf '  \342\234\223 managed assets (%s files)\n' "$managed_count"
+
 # migrate old layout: the style-guide used to sit in agents/sage/docs/ next to
 # generated docs — remove only the old Sage assets there, never the folder itself.
 rm -f agents/sage/docs/docs-style-template.md agents/sage/docs/sage-docs.css agents/sage/docs/sage-docs.js
 
 # --- starter knowledge (seed only if absent: never clobber the team's edits) ---
-[ -f agents/sage/index.md ] || cp "$TMP/agents/sage/index.md" agents/sage/index.md
-[ -d agents/sage/roles ] || cp -r "$TMP/agents/sage/roles" agents/sage/roles
+[ -f agents/sage/index.md ] || cp "$SOURCE_ROOT/agents/sage/index.md" agents/sage/index.md
+[ -d agents/sage/roles ] || cp -r "$SOURCE_ROOT/agents/sage/roles" agents/sage/roles
 
 # --- install the selected tools' thin adapters ---
 printf 'Sage: wiring up adapters ...\n'
 installed=""
 for k in $picked; do
   if [ "$k" = gemini ]; then
-    cp "$TMP/integrations/gemini.md" ./GEMINI.md
+    cp "$SOURCE_ROOT/integrations/gemini.md" ./GEMINI.md
   else
     src=$(key_src "$k")
     mkdir -p "$src"
-    find "$src" -name 'sage*' -type f -delete 2>/dev/null || true # drop renamed/removed adapters
-    cp -r "$TMP/integrations/$src/." "$src/"
+    while IFS= read -r base; do
+      managed_path=$(adapter_managed_path "$k" "$base")
+      [ -n "$managed_path" ] && rm -f "$managed_path"
+    done <"$ADAPTER_LIST"
+    cp -r "$SOURCE_ROOT/integrations/$src/." "$src/"
   fi
   printf '  \342\234\223 %s\n' "$(key_name "$k")"
   installed="$installed $(key_name "$k"),"
@@ -214,6 +299,7 @@ done
 cat <<EOF
 
 Sage installed. Adapters for:${installed%,}
+Project DNA spec: agents/sage/flows/project-dna-flow.md
 
 Commands now available:
   /sage                 run before any code change (plan, test, review, capture)

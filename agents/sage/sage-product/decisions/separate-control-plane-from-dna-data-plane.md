@@ -2,11 +2,11 @@
 id: separate-control-plane-from-dna-data-plane
 type: team_decision
 title: Separate the control plane from the DNA data plane
-domain: product
+domain: sage-product
 tags: [project-dna, tools, protocol, compatibility]
 status: proposed
 enforcement: warn
-applies_to: [product, "AGENTS.md", "project-dna/**"]
+applies_to: [sage-product, "AGENTS.md", "project-dna/**"]
 source: ai
 supersedes: ""
 related: [prepare-dna-before-runtime-reasoning]

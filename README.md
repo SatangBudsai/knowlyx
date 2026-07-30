@@ -64,9 +64,13 @@ bash -c "$(curl -fsSL https://cdn.jsdelivr.net/gh/qorstack/sage@latest/install.s
 irm https://cdn.jsdelivr.net/gh/qorstack/sage@latest/install.ps1 | iex
 ```
 
-It never overwrites your own knowledge under `agents/sage/<domain>/` — only
-Sage's own system files (the protocol, the commands, the style-guide) and the
-tool adapters. Then run `/sage-learning` to seed knowledge from your codebase.
+It overwrites only Sage's reserved paths: `AGENTS.md`, the commands directory,
+the exact files in `agents/sage/install-manifest.txt`, and the selected tools'
+exact adapter files. Custom knowledge, role edits, non-managed flows, `docs/`,
+`.sage-local.json`, and unrelated adapter files survive updates. The installed
+bundle now includes the Project DNA specification at
+`agents/sage/flows/project-dna-flow.md`. Then run `/sage-learning` to seed
+knowledge from your codebase.
 
 <details>
 <summary><b>Prefer to install by hand?</b></summary>

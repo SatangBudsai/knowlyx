@@ -76,11 +76,14 @@ class ProjectDNASpecContractTests(unittest.TestCase):
                 self.assertIn(marker.lower(), self.surfaces.lower())
 
         decision = read(
-            "agents/sage/product/decisions/"
+            "agents/sage/sage-product/decisions/"
             "separate-observations-from-approved-knowledge.md"
         )
         self.assertIn("never become binding", decision)
-        self.assertIn("cannot lower a safety gate", read("agents/sage/product/context.md"))
+        self.assertIn(
+            "cannot lower a safety gate",
+            read("agents/sage/sage-product/context.md"),
+        )
 
     def test_tool_contract_is_provider_neutral_and_complete(self) -> None:
         for tool in (
@@ -133,7 +136,7 @@ class ProjectDNASpecContractTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker.lower(), self.surfaces.lower())
 
-        context = read("agents/sage/product/context.md")
+        context = read("agents/sage/sage-product/context.md")
         self.assertIn("A timestamp alone never proves freshness", context)
 
     def test_spec_has_migration_quality_and_failure_gates(self) -> None:

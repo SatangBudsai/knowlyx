@@ -4,10 +4,11 @@
 no §0 checklist, no gauging, no plan, no reading the codebase, no extra reasoning.
 The whole point is to spend as few tokens as possible: ask, then run one command.
 
-It re-runs the official installer, which overwrites Sage's own files (`AGENTS.md`,
-`agents/sage/commands/`, the style-guide, and the tool adapters) with the latest
-from `main`, and **never touches your own knowledge under
-`agents/sage/<domain>/`**.
+It re-runs the official installer, which overwrites `AGENTS.md`,
+`agents/sage/commands/`, the exact files in
+`agents/sage/install-manifest.txt`, and the selected tools' exact adapter files.
+It never removes unlisted knowledge, role edits, flows, docs,
+`.sage-local.json`, or unrelated adapter files.
 
 ---
 

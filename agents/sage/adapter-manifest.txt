@@ -1,0 +1,12 @@
+# Sage adapter basenames. Keep retired names here so upgrades remove them safely.
+sage
+sage-docs
+sage-e2e-test
+sage-flow
+sage-grill
+sage-learning
+sage-security-review
+sage-setting
+sage-unit-test
+sage-update
+sage-wayfinder

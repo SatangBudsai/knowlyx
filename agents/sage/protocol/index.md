@@ -16,3 +16,4 @@ Decisions that govern Sage's own cognition protocol and cross-command contracts.
 | [Risk drivers own controls](decisions/risk-drivers-own-controls.md) | proposed | block |
 | [Continue until a material gate](decisions/continue-until-material-gate.md) | proposed | block |
 | [Detect picker capability, not provider](decisions/detect-picker-capability-not-provider.md) | proposed | warn |
+| [Install only exact managed paths](decisions/install-only-exact-managed-paths.md) | proposed | block |

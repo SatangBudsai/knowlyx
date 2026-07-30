@@ -1,4 +1,4 @@
-# Product context
+# Sage product context
 
 ## Project DNA
 

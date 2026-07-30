@@ -3,10 +3,11 @@
 #
 # It shows a checkbox picker of AI tools (Up/Down move, Space toggle, A all,
 # Enter confirm), fetches the protocol + commands, and drops the adapters you
-# pick. It NEVER touches your own knowledge under agents/sage/<domain>/.
+# pick. It updates only exact Sage-owned paths; custom knowledge/flows/docs survive.
 #
 # Non-interactive? Set $env:SAGE_TOOLS first, e.g.
 #   $env:SAGE_TOOLS='claude,cursor'; irm .../install.ps1 | iex   (or 'all')
+# Local development/tests may set SAGE_INSTALL_SOURCE to a Sage checkout.
 
 # Wrapped in & { } so nothing leaks into your shell when piped through iex.
 & {
@@ -35,6 +36,70 @@
       elseif ($tools.Contains($t)) { $out += $t }
     }
     return @($out | Select-Object -Unique)
+  }
+
+  function Get-AdapterManagedPath([string]$key, [string]$base) {
+    switch ($key) {
+      'claude'   { return ".claude/commands/$base.md" }
+      'codex'    { return ".codex/prompts/$base.md" }
+      'cursor'   { return ".cursor/rules/$base.mdc" }
+      'copilot'  { return ".github/instructions/$base.instructions.md" }
+      'windsurf' { return ".windsurf/rules/$base.md" }
+      'cline'    { return ".clinerules/$base.md" }
+      default    { return '' }
+    }
+  }
+
+  function Read-InstallManifest([string]$path, [string]$sourceRoot) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+      throw "source is missing agents/sage/install-manifest.txt."
+    }
+    $items = @()
+    $seen = @{}
+    foreach ($raw in (Get-Content -LiteralPath $path)) {
+      $rel = "$raw".TrimEnd("`r")
+      if ([string]::IsNullOrWhiteSpace($rel) -or $rel.StartsWith('#')) { continue }
+      $segments = @($rel -split '/')
+      if (
+        [IO.Path]::IsPathRooted($rel) -or
+        $rel.Contains('\') -or
+        $rel.EndsWith('/') -or
+        $rel -match '\s' -or
+        $segments -contains '.' -or
+        $segments -contains '..'
+      ) {
+        throw "unsafe install manifest path: $rel"
+      }
+      if ($seen.ContainsKey($rel)) { throw "duplicate install manifest path: $rel" }
+      $sourcePath = Join-Path $sourceRoot ($rel -replace '/', [IO.Path]::DirectorySeparatorChar)
+      if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+        throw "install manifest source is missing: $rel"
+      }
+      $seen[$rel] = $true
+      $items += $rel
+    }
+    if ($items.Count -eq 0) { throw 'install manifest contains no managed files.' }
+    return @($items)
+  }
+
+  function Read-AdapterManifest([string]$path) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+      throw "source is missing agents/sage/adapter-manifest.txt."
+    }
+    $items = @()
+    $seen = @{}
+    foreach ($raw in (Get-Content -LiteralPath $path)) {
+      $base = "$raw".TrimEnd("`r")
+      if ([string]::IsNullOrWhiteSpace($base) -or $base.StartsWith('#')) { continue }
+      if ($base -notmatch '^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$') {
+        throw "unsafe adapter manifest basename: $base"
+      }
+      if ($seen.ContainsKey($base)) { throw "duplicate adapter manifest basename: $base" }
+      $seen[$base] = $true
+      $items += $base
+    }
+    if ($items.Count -eq 0) { throw 'adapter manifest contains no managed basenames.' }
+    return @($items)
   }
 
   # Interactive arrow-key checkbox. Returns a comma-joined key string (may be
@@ -135,53 +200,119 @@
   $picked = @($picked)
   if ($picked.Count -eq 0) { Write-Host 'Sage: no tools selected. Nothing to do.'; return }
 
-  if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+  if (-not $env:SAGE_INSTALL_SOURCE -and -not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Host 'Sage: git is required but was not found. Install Git, then re-run.'; return
   }
 
   $tmp = Join-Path $env:TEMP ('sage-' + [guid]::NewGuid().ToString('N'))
-  Write-Host 'Sage: fetching latest from qorstack/sage ...'
-  # git writes progress to stderr even on success; in PowerShell 5.1 that would
-  # otherwise abort the script. Run it non-terminating and check the real exit code.
-  $eap = $ErrorActionPreference
-  $ErrorActionPreference = 'Continue'
-  git clone --depth 1 --quiet $repo $tmp 2>&1 | Out-Null
-  $cloneOk = ($LASTEXITCODE -eq 0)
-  $ErrorActionPreference = $eap
-  if (-not $cloneOk) { Write-Host "Sage: git clone failed (exit $LASTEXITCODE). Check your network and try again."; return }
-  Write-Host '  + fetched'
-
+  $sourceRoot = ''
   try {
-    # --- protocol + Sage-owned files. Clears only what Sage owns; your knowledge
-    #     (agents/sage/<domain>/, roles/, flows/, index.md), generated docs, and
-    #     .sage-local.json are never touched. ---
+    New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+    if ($env:SAGE_INSTALL_SOURCE) {
+      if (-not (Test-Path -LiteralPath $env:SAGE_INSTALL_SOURCE -PathType Container)) {
+        throw "SAGE_INSTALL_SOURCE is not a directory: $($env:SAGE_INSTALL_SOURCE)"
+      }
+      Write-Host 'Sage: loading local install source ...'
+      $sourceRoot = (Resolve-Path -LiteralPath $env:SAGE_INSTALL_SOURCE).Path
+      $targetRoot = (Resolve-Path -LiteralPath (Get-Location).Path).Path
+      if ([string]::Equals($sourceRoot, $targetRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'SAGE_INSTALL_SOURCE must not be the target repository.'
+      }
+      Write-Host '  + source ready'
+    }
+    else {
+      Write-Host 'Sage: fetching latest from qorstack/sage ...'
+      $sourceRoot = Join-Path $tmp 'source'
+      # git writes progress to stderr even on success; in PowerShell 5.1 that would
+      # otherwise abort the script. Run it non-terminating and check the real exit code.
+      $eap = $ErrorActionPreference
+      $ErrorActionPreference = 'Continue'
+      git clone --depth 1 --quiet $repo $sourceRoot 2>&1 | Out-Null
+      $cloneOk = ($LASTEXITCODE -eq 0)
+      $ErrorActionPreference = $eap
+      if (-not $cloneOk) {
+        throw "git clone failed (exit $LASTEXITCODE). Check your network and try again."
+      }
+      Write-Host '  + fetched'
+    }
+
+    # --- preflight every distribution input before the first target write ---
+    if (-not (Test-Path -LiteralPath "$sourceRoot/AGENTS.md" -PathType Leaf)) {
+      throw 'source is missing AGENTS.md.'
+    }
+    if (-not (Test-Path -LiteralPath "$sourceRoot/agents/sage/commands" -PathType Container)) {
+      throw 'source is missing agents/sage/commands/.'
+    }
+    if (-not (Test-Path -LiteralPath "$sourceRoot/agents/sage/index.md" -PathType Leaf)) {
+      throw 'source is missing agents/sage/index.md.'
+    }
+    if (-not (Test-Path -LiteralPath "$sourceRoot/agents/sage/roles" -PathType Container)) {
+      throw 'source is missing agents/sage/roles/.'
+    }
+
+    $installFiles = @(
+      Read-InstallManifest "$sourceRoot/agents/sage/install-manifest.txt" $sourceRoot
+    )
+    $adapterFiles = @(
+      Read-AdapterManifest "$sourceRoot/agents/sage/adapter-manifest.txt"
+    )
+
+    foreach ($k in $picked) {
+      $t = $tools[$k]
+      if ($k -eq 'gemini') {
+        if (-not (Test-Path -LiteralPath "$sourceRoot/integrations/gemini.md" -PathType Leaf)) {
+          throw 'source is missing the Gemini adapter.'
+        }
+      }
+      elseif (-not (Test-Path -LiteralPath "$sourceRoot/integrations/$($t.src)" -PathType Container)) {
+        throw "source is missing the $($t.name) adapter."
+      }
+    }
+    Write-Host '  + preflight passed'
+
+    # --- protocol + Sage-owned files. Exact manifest paths are reserved; all
+    #     other knowledge, role edits, flows, docs, adapters, and local config survive. ---
     Write-Host 'Sage: writing protocol + commands ...'
-    Copy-Item "$tmp/AGENTS.md" './AGENTS.md' -Force
+    Copy-Item "$sourceRoot/AGENTS.md" './AGENTS.md' -Force
     Write-Host '  + AGENTS.md'
     if (Test-Path 'agents/sage/commands') { Remove-Item 'agents/sage/commands' -Recurse -Force -ErrorAction SilentlyContinue }
     New-Item -ItemType Directory -Force -Path 'agents/sage' | Out-Null
-    Copy-Item "$tmp/agents/sage/commands" 'agents/sage/commands' -Recurse -Force
-    $cmdCount = @(Get-ChildItem "$tmp/agents/sage/commands/*.md" -ErrorAction SilentlyContinue).Count
+    Copy-Item "$sourceRoot/agents/sage/commands" 'agents/sage/commands' -Recurse -Force
+    $cmdCount = @(Get-ChildItem "$sourceRoot/agents/sage/commands/*.md" -ErrorAction SilentlyContinue).Count
     Write-Host ("  + agents/sage/commands/ ($cmdCount commands)")
-    Copy-Item "$tmp/agents/sage/docs-style-template.md" 'agents/sage/docs-style-template.md' -Force
-    Write-Host '  + agents/sage/docs-style-template.md'
+
+    foreach ($rel in $installFiles) {
+      $sourcePath = Join-Path $sourceRoot ($rel -replace '/', [IO.Path]::DirectorySeparatorChar)
+      $targetPath = Join-Path (Get-Location) ($rel -replace '/', [IO.Path]::DirectorySeparatorChar)
+      $targetParent = Split-Path -Parent $targetPath
+      New-Item -ItemType Directory -Force -Path $targetParent | Out-Null
+      Copy-Item -LiteralPath $sourcePath -Destination $targetPath -Force
+    }
+    Write-Host ("  + managed assets ($($installFiles.Count) files)")
+
     # migrate old layout: remove only the old Sage assets from agents/sage/docs/, keep the folder.
     Remove-Item 'agents/sage/docs/docs-style-template.md', 'agents/sage/docs/sage-docs.css', 'agents/sage/docs/sage-docs.js' -Force -ErrorAction SilentlyContinue
 
     # --- starter knowledge (seed only if absent: never clobber the team's edits) ---
-    if (-not (Test-Path 'agents/sage/index.md')) { Copy-Item "$tmp/agents/sage/index.md" 'agents/sage/index.md' -Force }
-    if (-not (Test-Path 'agents/sage/roles')) { Copy-Item "$tmp/agents/sage/roles" 'agents/sage/' -Recurse -Force }
+    if (-not (Test-Path 'agents/sage/index.md')) { Copy-Item "$sourceRoot/agents/sage/index.md" 'agents/sage/index.md' -Force }
+    if (-not (Test-Path 'agents/sage/roles')) { Copy-Item "$sourceRoot/agents/sage/roles" 'agents/sage/' -Recurse -Force }
 
     # --- install the selected tools' thin adapters ---
     Write-Host 'Sage: wiring up adapters ...'
     $installed = @()
     foreach ($k in $picked) {
       $t = $tools[$k]
-      if ($k -eq 'gemini') { Copy-Item "$tmp/integrations/gemini.md" './GEMINI.md' -Force }
+      if ($k -eq 'gemini') { Copy-Item "$sourceRoot/integrations/gemini.md" './GEMINI.md' -Force }
       else {
         New-Item -ItemType Directory -Force -Path $t.dest | Out-Null
-        Get-ChildItem $t.dest -Recurse -Filter 'sage*' -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
-        Copy-Item "$tmp/integrations/$($t.src)/*" $t.dest -Recurse -Force
+        foreach ($base in $adapterFiles) {
+          $managedPath = Get-AdapterManagedPath $k $base
+          if ($managedPath) {
+            Remove-Item -LiteralPath $managedPath -Force -ErrorAction SilentlyContinue
+          }
+        }
+        Get-ChildItem -LiteralPath "$sourceRoot/integrations/$($t.src)" -Force |
+          Copy-Item -Destination $t.dest -Recurse -Force
       }
       Write-Host ('  + ' + $t.name)
       $installed += $t.name
@@ -189,6 +320,7 @@
 
     Write-Host ''
     Write-Host ('Sage installed. Adapters for: ' + ($installed -join ', '))
+    Write-Host 'Project DNA spec: agents/sage/flows/project-dna-flow.md'
     Write-Host ''
     Write-Host 'Commands now available:'
     Write-Host '  /sage                 run before any code change (plan, test, review, capture)'

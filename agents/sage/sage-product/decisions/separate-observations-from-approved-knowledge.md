@@ -2,11 +2,11 @@
 id: separate-observations-from-approved-knowledge
 type: team_decision
 title: Separate observations from approved knowledge
-domain: product
+domain: sage-product
 tags: [project-dna, provenance, approval, safety]
 status: proposed
 enforcement: block
-applies_to: [product, "project-dna/**"]
+applies_to: [sage-product, "project-dna/**"]
 source: ai
 supersedes: ""
 related: [prepare-dna-before-runtime-reasoning]
