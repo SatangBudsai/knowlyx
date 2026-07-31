@@ -45,6 +45,25 @@ product/domain decisions. Re-route when new facts change the amount of fog. A
 large/multi-file implementation may still be `clear-single-session`; size alone
 does not make it Wayfinder work.
 
+**Run a pre-action clarification pass, not a mandatory interview.** Before
+design or implementation, check whether anything missing would materially
+change the outcome. Split repository facts from human-owned decisions: inspect
+code, tests, schema, config, logs, and docs for facts yourself; ask only for a
+missing decision that changes product behavior, canonical meaning, scope,
+ownership, public contract, risk acceptance, or another hard-to-reverse
+outcome. An internal reversible preference uses the repo convention or
+recommended default and records an assumption.
+
+When the request is already actionable, **do not ask a ceremonial clarification
+question — proceed.** This includes direct, bounded instructions and focused bug
+fixes with enough evidence to begin safely, such as an error/stack trace,
+observed versus expected behavior, failing test, logs, reproduction, named
+location, or approved acceptance criteria. These are examples, not a required
+template; discover any remaining repository facts yourself. Ask later only when
+new evidence exposes a genuine implementation-shaping human decision. Precision
+never bypasses the risk gates in §1.4: HIGH, destructive, irreversible, and
+other explicitly gated actions still require their named approval.
+
 **Read `.sage-local.json` at the repo root** (gitignored, per-machine). It keeps
 checklist selection (`mode`, `checklist`) separate from interaction policy.
 Migrate old fields while preserving unknown fields:
@@ -91,11 +110,13 @@ a host-native checkbox; promise native widgets only when the host exposes them.
 - **`strict`** — return at command checkpoints for teams that deliberately want
   the older, more synchronous behavior.
 
-Question policy defaults to `batch-independent`: combine up to three independent
-human decisions in one checkpoint; ask dependent decisions one at a time because
-each answer changes the next branch. Reversible internal preferences use the
-repo convention/recommended default and record an assumption. Interaction
-settings never weaken the risk gates in §1.4.
+Question policy applies only after the pre-action pass finds necessary
+human-owned questions; it never requires Sage to invent one. It defaults to
+`batch-independent`: combine up to three independent human decisions in one
+checkpoint; ask dependent decisions one at a time because each answer changes
+the next branch. Reversible internal preferences use the repo
+convention/recommended default and record an assumption. Interaction settings
+never weaken the risk gates in §1.4.
 
 **Always-on — this is Sage itself, never a checkbox:**
 

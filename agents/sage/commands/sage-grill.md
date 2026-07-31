@@ -6,6 +6,14 @@ Batch independent decisions, keep dependent branches one-at-a-time, ground facts
 in the repo, maintain the domain glossary inline, and checkpoint multi-decision
 sessions so alignment survives the chat.
 
+Enter Grill only when the parent pre-action clarification pass found a genuine
+human-owned decision that changes the outcome. Do not Grill a direct actionable
+instruction or a focused bug fix merely because asking a question is possible.
+Errors, stack traces, failing tests, logs, reproductions, or precise affected
+locations often provide enough evidence to begin; inspect the repository for
+the rest. If no material decision remains after that inspection, return
+`requirements-clear` immediately without inventing a question.
+
 **Produces decisions, not product code.** It stops before design or
 implementation. It is an always-on routing guard independent of `plan-flow`, not
 a sixth checklist item. If the effort is larger than one session, hand it to

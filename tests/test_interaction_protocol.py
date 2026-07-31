@@ -133,6 +133,23 @@ class InteractionProtocolTests(unittest.TestCase):
         self.assertIn("independent decisions", surfaces)
         self.assertIn("dependent", surfaces)
 
+    def test_question_policy_does_not_force_ceremonial_questions(self) -> None:
+        agents = compact(read("AGENTS.md"))
+        sage = compact(read("agents/sage/commands/sage.md"))
+        public_docs = compact(
+            "\n".join((read("README.md"), read("docs/run-until-gate.md")))
+        )
+
+        for content in (agents, sage):
+            with self.subTest(surface=content[:40]):
+                self.assertIn("not a mandatory", content.lower())
+                self.assertIn("already actionable", content.lower())
+                self.assertIn("ceremonial clarification question", content.lower())
+                self.assertIn("risk gate", content.lower())
+
+        self.assertIn("pre-action clarification pass", public_docs.lower())
+        self.assertIn("does **not** mean it asks a question every time", public_docs)
+
     def test_plan_flow_trigger_is_not_file_count_or_routine_bug(self) -> None:
         agents = compact(read("AGENTS.md"))
         sage = compact(read("agents/sage/commands/sage.md"))

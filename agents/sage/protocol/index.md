@@ -12,6 +12,7 @@ Decisions that govern Sage's own cognition protocol and cross-command contracts.
 | Decision | Status | Enforcement |
 | --- | --- | --- |
 | [Route by fog and session span](decisions/route-by-fog-and-session-span.md) | proposed | block |
+| [Ask only when actionability is missing](decisions/ask-only-when-actionability-is-missing.md) | proposed | block |
 | [Keep context separate from decisions](decisions/keep-context-separate-from-decisions.md) | proposed | warn |
 | [Risk drivers own controls](decisions/risk-drivers-own-controls.md) | proposed | block |
 | [Continue until a material gate](decisions/continue-until-material-gate.md) | proposed | block |

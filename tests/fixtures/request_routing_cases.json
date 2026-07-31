@@ -40,5 +40,17 @@
     "prompt": "Continue to flow design from a requirements-clear Sage Grill spec.",
     "expected_route": "clear-single-session",
     "invariants": ["consume-grill-handoff", "reopen-only-with-new-evidence"]
+  },
+  {
+    "id": "direct-actionable-fix",
+    "prompt": "Fix the null dereference in parseOrder at orders/parser.py:87; expected missing customer data to return None.",
+    "expected_route": "clear-single-session",
+    "invariants": ["pre-action-pass", "act-without-ceremonial-question", "do-not-grill"]
+  },
+  {
+    "id": "error-rich-bug-report",
+    "prompt": "Fix TypeError: cannot read properties of undefined from CartSummary.tsx:42. Repro: open an empty cart; expected total 0. The failing test is cart-summary.empty.test.tsx.",
+    "expected_route": "clear-single-session",
+    "invariants": ["pre-action-pass", "diagnostic-evidence-is-enough-to-begin", "act-without-ceremonial-question"]
   }
 ]

@@ -38,6 +38,9 @@ class RequestRoutingProtocolTests(unittest.TestCase):
             "dependent-one-at-a-time",
             "update-context-inline",
             "reopen-only-with-new-evidence",
+            "pre-action-pass",
+            "act-without-ceremonial-question",
+            "diagnostic-evidence-is-enough-to-begin",
         ):
             with self.subTest(required=required):
                 self.assertIn(required, invariants)
@@ -57,6 +60,42 @@ class RequestRoutingProtocolTests(unittest.TestCase):
 
         self.assertIn("independent of `plan-flow`", compact(agents))
         self.assertIn("independent of `plan-flow`", compact(sage))
+
+    def test_pre_action_pass_asks_only_for_missing_material_decisions(self) -> None:
+        agents = compact(read("AGENTS.md"))
+        sage = compact(read("agents/sage/commands/sage.md"))
+        grill = compact(read("agents/sage/commands/sage-grill.md"))
+        flow = compact(read("agents/sage/flows/pre-action-clarification-flow.md"))
+
+        for content in (agents, sage, flow):
+            with self.subTest(surface=content[:40]):
+                self.assertIn("pre-action clarification pass", content.lower())
+                self.assertIn("human-owned decision", content.lower())
+                self.assertIn("repository facts", content.lower())
+                self.assertIn("ceremonial", content.lower())
+                self.assertIn("HIGH", content)
+                self.assertIn("destructive", content.lower())
+
+        for marker in (
+            "Direct bounded instructions",
+            "focused bug fixes",
+            "error or stack trace",
+            "failing test",
+            "Ask later only when new evidence exposes",
+        ):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, sage)
+
+        self.assertIn(
+            "Do not Grill a direct actionable instruction or a focused bug fix",
+            grill,
+        )
+        self.assertIn(
+            "return `requirements-clear` immediately without inventing a question",
+            grill,
+        )
+        self.assertIn("## Out of scope", flow)
+        self.assertIn("## 10. Open questions None.", flow)
 
     def test_grill_has_checkpoint_domain_model_and_exit_contract(self) -> None:
         grill = compact(read("agents/sage/commands/sage-grill.md"))

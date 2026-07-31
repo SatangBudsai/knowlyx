@@ -232,7 +232,15 @@ class InstallerDistributionTests(unittest.TestCase):
             "agents/sage/flows/installer-managed-assets-flow.md",
             install_entries,
         )
+        self.assertIn(
+            "agents/sage/flows/pre-action-clarification-flow.md",
+            install_entries,
+        )
         self.assertIn("agents/sage/protocol/index.md", install_entries)
+        self.assertIn(
+            "agents/sage/protocol/decisions/ask-only-when-actionability-is-missing.md",
+            install_entries,
+        )
         self.assertIn("agents/sage/sage-product/index.md", install_entries)
         self.assertNotIn("docs/project-dna.md", install_entries)
 

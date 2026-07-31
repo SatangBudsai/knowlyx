@@ -2,7 +2,7 @@
 
 > Sage v3 แยก “เลือก workflow อะไร” ออกจาก “ควรคืน control ให้มนุษย์เมื่อไร”
 > เพื่อให้งานเดินต่อข้าม command/ticket/phase โดยไม่ลด safety และเลือก checklist
-> ผ่าน UI ที่ดีที่สุดซึ่ง host มีจริง อ้างอิง protocol ณ 2026-07-30
+> ผ่าน UI ที่ดีที่สุดซึ่ง host มีจริง อ้างอิง protocol ณ 2026-07-31
 
 ## 1. Actors & Systems
 
@@ -23,6 +23,13 @@ continuation แต่อนุมัติ HIGH/destructive/HITL แทน Huma
 
 ```text
 [Code-changing request]
+   |
+   v
+[/sage] pre-action clarification pass
+   |
+   +-- repository fact --> inspect it; do not ask
+   +-- missing material decision --> Grill/Wayfinder question gate
+   `-- actionable direct/fix request --> continue without ceremonial question
    |
    v
 [/sage] อ่าน .sage-local.json v3
@@ -46,7 +53,8 @@ continuation แต่อนุมัติ HIGH/destructive/HITL แทน Huma
 ```
 
 **หัวใจ:** Provider name ไม่ได้พิสูจน์ picker capability และการจบ child command
-ไม่ได้แปลว่างานทั้ง run เสร็จ
+ไม่ได้แปลว่างานทั้ง run เสร็จ ส่วน clarification pass เป็น internal sufficiency
+check ไม่ใช่ข้อบังคับว่าต้องถามผู้ใช้ทุกงาน
 
 ## 3. Checklist selection
 
@@ -97,13 +105,15 @@ Auto mode ไม่เปิด picker แม้ host จะมี checkbox Sage
 
 Parent `/sage` คำนวณ Run frontier จากงานที่ `open + unblocked`:
 
-1. ทำงานอิสระพร้อมกันเมื่อ environment รองรับ
-2. ทำงาน dependent หลัง prerequisite เสร็จ
-3. เลือก default สำหรับ internal + reversible preference และบันทึก assumption
-4. Batch human decisions ที่อิสระไม่เกิน 3 ข้อ
-5. ถาม dependent decision tree ทีละข้อ
-6. Consume `requirements-clear`, `spec-ready`, `design-clear`
-7. Recompute frontier และเดินต่อ
+1. รัน pre-action pass: แยก repository facts ออกจาก human-owned decisions
+2. ถ้า request actionable อยู่แล้ว ให้ทำต่อโดยไม่สร้างคำถามเชิงพิธี
+3. ทำงานอิสระพร้อมกันเมื่อ environment รองรับ
+4. ทำงาน dependent หลัง prerequisite เสร็จ
+5. เลือก default สำหรับ internal + reversible preference และบันทึก assumption
+6. เมื่อจำเป็นต้องถาม ให้ batch human decisions ที่อิสระไม่เกิน 3 ข้อ
+7. ถาม dependent decision tree ทีละข้อ
+8. Consume `requirements-clear`, `spec-ready`, `design-clear`
+9. Recompute frontier และเดินต่อ
 
 การจบ ticket, command, handoff, checkpoint หรือ phase เป็น state transition
 ไม่ใช่ terminal condition
@@ -179,6 +189,10 @@ Migration จาก v2 เก็บ `mode`, `checklist` และ unknown fields
 
 | Case | Handling |
 | --- | --- |
+| Direct bounded instruction | รัน clarification pass ภายใน แล้วทำต่อทันทีเมื่อไม่มี material decision ขาด |
+| Bug fix มี error/stack trace/test/repro เพียงพอ | เริ่ม diagnose/fix; ไม่ถามเชิงพิธี และถามภายหลังเฉพาะเมื่อหลักฐานใหม่เปิด human-owned branch |
+| ข้อมูลที่ขาดหาได้จาก repo | อ่าน code/tests/schema/config/logs/docs เอง; ไม่ถาม Human |
+| Request actionable แต่ action เป็น HIGH/destructive | risk gate ยังบังคับ explicit approval |
 | Codex/agent name ดูเหมือนรองรับ picker | ตรวจ callable tool/schema ของ session; ห้ามเดา |
 | Host มีแค่ single-select | Recommended/Defaults/Customize |
 | Host ไม่มี widget | Keyword/exception fallback |
@@ -203,6 +217,10 @@ Migration จาก v2 เก็บ `mode`, `checklist` และ unknown fields
 
 Protocol tests ตรวจ:
 
+- pre-action clarification pass แยก fact ออกจาก human-owned decision
+- direct actionable/error-rich fix ไม่ถูกถามเชิงพิธี
+- vague material decision ยัง route เข้า Grill และถามตาม dependency
+- actionable fast path ข้าม HIGH/destructive gate ไม่ได้
 - config v3 migration/defaults
 - native-first capability routing
 - auto mode ไม่เปิด picker

@@ -29,6 +29,8 @@ updates every agent.
 
 `flows/risk-controls-flow.md` defines the current end-to-end contract for turning
 risk drivers into required controls, validation evidence, and residual risk.
+`flows/pre-action-clarification-flow.md` defines when Sage asks before acting and
+when an actionable direct instruction or evidenced bug fix proceeds immediately.
 `flows/installer-managed-assets-flow.md` defines the exact install/upgrade
 ownership and preservation contract. `flows/project-dna-flow.md` defines the
 specified (not yet shipped) Project DNA cognition data plane.

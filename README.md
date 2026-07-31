@@ -135,6 +135,14 @@ Before that checklist, Sage routes the request by how much decision fog remains:
 Grill and Wayfinder are always-on guards, not checklist choices. Turning
 `plan-flow` off never authorizes coding past unresolved product decisions.
 
+Sage performs a pre-action clarification pass before implementation, but that
+does **not** mean it asks a question every time. It looks up repository facts
+itself and asks only for missing human decisions that materially change the
+outcome. A direct, bounded instruction—or a focused fix with enough evidence to
+begin, such as an error, stack trace, failing test, logs, reproduction, or named
+location—continues immediately without a ceremonial interview. Central
+HIGH/destructive risk gates still apply.
+
 | Checklist item    | Runs                    | For                                      |
 | ----------------- | ----------------------- | ---------------------------------------- |
 | `plan-flow`       | `/sage-flow`            | design the flow before coding            |
@@ -189,8 +197,10 @@ It looks up facts itself, batches two or three independent decisions, keeps
 dependent decision branches one-at-a-time, stress-tests material answers with
 concrete scenarios, updates
 `agents/sage/<domain>/context.md` as terms settle, and checkpoints multi-decision
-sessions before the first question. It exits `requirements-clear`; `/sage-flow`
-must consume that handoff without repeating resolved product questions.
+sessions before the first question. Sage enters Grill only when a genuine
+human-owned decision remains; actionable direct fixes do not get interviewed
+just to create a question. It exits `requirements-clear`; `/sage-flow` must
+consume that handoff without repeating resolved product questions.
 
 **`/sage-wayfinder`** — plan an effort too foggy for one session
 

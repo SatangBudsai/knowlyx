@@ -5,12 +5,14 @@ agents/sage/adapter-manifest.txt
 agents/sage/installed-assets.md
 agents/sage/docs-style-template.md
 agents/sage/flows/installer-managed-assets-flow.md
+agents/sage/flows/pre-action-clarification-flow.md
 agents/sage/flows/project-dna-flow.md
 agents/sage/flows/request-routing-wayfinder-flow.md
 agents/sage/flows/risk-controls-flow.md
 agents/sage/flows/run-until-gate-flow.md
 agents/sage/protocol/index.md
 agents/sage/protocol/context.md
+agents/sage/protocol/decisions/ask-only-when-actionability-is-missing.md
 agents/sage/protocol/decisions/continue-until-material-gate.md
 agents/sage/protocol/decisions/detect-picker-capability-not-provider.md
 agents/sage/protocol/decisions/install-only-exact-managed-paths.md

@@ -139,6 +139,27 @@ Routing is always-on and independent of `plan-flow`. Do not use file count or
 risk level as a proxy for fog. Confirm the route after reading knowledge and
 source in Step 2; facts may shrink the fog or expose a larger effort.
 
+Before assigning the route, run a **pre-action clarification pass**. This is an
+internal sufficiency check, not a mandatory user-facing question:
+
+1. Identify what information appears to be missing.
+2. Look up repository facts in code, tests, schema, config, logs, and docs.
+3. Use the repo convention or recommended default for internal reversible
+   preferences and record the assumption.
+4. Ask only when a missing human-owned decision materially changes product
+   behavior, canonical meaning, scope, ownership, public contract, risk
+   acceptance, or another hard-to-reverse outcome.
+
+When the request is already actionable, continue without a ceremonial
+clarification question. Direct bounded instructions and focused bug fixes often
+qualify when they include enough evidence to begin safely—for example an error
+or stack trace, observed versus expected behavior, a failing test, logs,
+reproduction steps, a named location, or approved acceptance criteria. Treat
+these as examples, not a mandatory bug-report template; discover remaining
+repository facts yourself. Ask later only when new evidence exposes a genuine
+implementation-shaping human decision. This fast path never bypasses HIGH,
+destructive, irreversible, or other central risk gates.
+
 Do not rely on a fixed "task type" table. Detect signals instead. A task may match many signals.
 
 | Signal              | Examples                                                                  |
@@ -336,7 +357,9 @@ Select the role(s) from the detected signals and stack, load or create the role 
 handoff. Under `until-gate`, Wayfinder may span human checkpoints, but a
 completed handoff returns to the active parent and continues directly. Continue
 implementation only for `clear-single-session` or after a command returns its
-explicit clear exit state.
+explicit clear exit state. A direct actionable request or sufficiently evidenced
+bug fix is normally `clear-single-session`; do not route it to Grill merely to
+ask a generic “anything else?” question.
 
 ---
 
@@ -393,8 +416,10 @@ parent `/sage` owns the loop:
 2. Run independent work in parallel; run dependent work after its prerequisite.
 3. Choose repo-conventional defaults for internal + reversible choices and
    record the assumption.
-4. Batch up to the configured maximum of independent human decisions; keep
-   dependent decision trees one question at a time.
+4. If the pre-action pass found necessary human-owned decisions, batch up to the
+   configured maximum of independent questions; keep dependent decision trees
+   one question at a time. Do not invent a question when the request is already
+   actionable.
 5. Consume `requirements-clear`, `spec-ready`, and `design-clear` child handoffs
    immediately when `continueAfterHandoff` is true.
 6. Recompute the frontier and continue. A completed ticket, command, handoff,
