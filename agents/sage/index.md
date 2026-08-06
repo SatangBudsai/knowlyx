@@ -1,7 +1,7 @@
 # Sage knowledge
 
 This folder is your team's knowledge — the rules and decisions Sage's agent
-reads before it writes code (see [`../../AGENTS.md`](../../AGENTS.md)).
+reads when `/sage` is explicitly invoked (see [`AGENTS.md`](AGENTS.md)).
 
 **It starts empty on purpose.** Add domains as your project needs them — there
 are no generic, pre-baked rules to delete. Sage's agent also fills this in for

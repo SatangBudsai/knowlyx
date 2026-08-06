@@ -20,12 +20,12 @@ practice.
 | `sage-update.md`          | Re-run the installer to update Sage to the latest version          | on demand                          |
 | `sage-setting.md`         | View/change how `/sage` runs (mode + default steps, per machine)   | on demand                          |
 
-The route guard + run checklist (`AGENTS.md` §0) are the dispatcher: `/sage`
+The route guard + run contract (`agents/sage/AGENTS.md` §0) are the dispatcher when `/sage` is invoked:
 routes fog to Grill or Wayfinder independently of checklist selection, then runs
 the applicable confirmed specialist commands after requirements are clear.
 `automate-test` (run the existing suite and report the real output) is a core
 step of `/sage` itself, not a separate command.
 
-Risk policy has one source of truth: `AGENTS.md` §1.4 and §4. Commands may add
+Risk policy has one source of truth: `agents/sage/AGENTS.md` §1.4 and §4. Commands may add
 domain-specific evidence, but may not loosen its HIGH-risk gate or replace
 driver-specific controls with a generic risk label.

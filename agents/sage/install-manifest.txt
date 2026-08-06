@@ -1,5 +1,6 @@
 # Exact files owned and updated by the Sage installer.
 # Paths are relative to the target repository. Directories and traversal are forbidden.
+agents/sage/AGENTS.md
 agents/sage/install-manifest.txt
 agents/sage/adapter-manifest.txt
 agents/sage/installed-assets.md

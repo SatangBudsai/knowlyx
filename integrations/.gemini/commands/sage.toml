@@ -1,0 +1,5 @@
+description = "Run the Sage cognition protocol for this task"
+prompt = """
+Read and follow @{agents/sage/AGENTS.md}. Then execute the canonical Sage command
+in @{agents/sage/commands/sage.md}. Do not duplicate or bypass the protocol.
+"""

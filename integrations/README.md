@@ -1,6 +1,6 @@
 # Sage integrations — one protocol, every agent
 
-The protocol lives in **[`../AGENTS.md`](../AGENTS.md)** and every command's full
+The protocol lives in **[`../agents/sage/AGENTS.md`](../agents/sage/AGENTS.md)** and every command's full
 body lives once under **[`../agents/sage/commands/`](../agents/sage/commands/)**.
 The files in this folder are **thin adapters** — each just points its tool at the
 canonical files. Copy only what your tool needs (or run the one-command installer
@@ -36,20 +36,26 @@ cp integrations/gemini.md ./GEMINI.md
 | Copy           | Destination             | For            |
 | -------------- | ----------------------- | -------------- |
 | `.claude/`     | `.claude/commands/`     | Claude Code    |
-| `.cursor/`     | `.cursor/rules/`        | Cursor         |
-| `.windsurf/`   | `.windsurf/rules/`      | Windsurf       |
+| `.cursor/`     | `.cursor/commands/` + `.cursor/rules/` | Cursor |
+| `.windsurf/`   | `.windsurf/workflows/` + `.windsurf/rules/` | Windsurf |
 | `.clinerules/` | `.clinerules/`          | Cline          |
-| `.github/`     | `.github/instructions/` | GitHub Copilot |
-| `.codex/`      | `.codex/prompts/`       | Codex          |
-| `gemini.md`    | `GEMINI.md`             | Gemini CLI     |
+| `.github/`     | `.github/prompts/` + `.github/instructions/` | GitHub Copilot |
+| `.codex/`      | `.codex/prompts/` and `.codex/skills/sage/SKILL.md` | Codex |
+| `gemini.md`    | `GEMINI.md` + `.gemini/commands/sage.toml` | Gemini CLI |
 
 **OpenCode, Google Antigravity** (and Codex) read `AGENTS.md` natively — the
 adapters above just add the slash-command entry points. Keep `AGENTS.md` at your
 repo root either way.
 
-Each adapter is intentionally tiny: it points at `AGENTS.md` and the canonical
-command under `agents/sage/commands/`. Edit the protocol or a command in **one**
-place and every agent stays in step.
+Each adapter is intentionally tiny: it points at `agents/sage/AGENTS.md` and the
+canonical command under `agents/sage/commands/`. Edit the protocol or a command
+in **one** place and every agent stays in step.
+
+Codex has two discovery surfaces: `.codex/prompts/` is typically exposed as
+`/prompts:sage`, while `.codex/skills/sage/SKILL.md` is typically exposed as
+`$sage`. Claude Code and rule-based adapters can expose the shorter `/sage`
+label directly. The host owns the final label; Sage cannot force every host to
+use identical syntax.
 
 ## Commands included
 

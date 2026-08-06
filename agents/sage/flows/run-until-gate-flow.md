@@ -215,11 +215,8 @@ decision หรือ external mutation แทน Human และ child command 
   "version": 3,
   "mode": "auto",
   "checklist": {
-    "auto-switch-model": true,
-    "plan-flow": true,
-    "unit-test": true,
-    "e2e-test": false,
-    "security-review": false
+    "suggest-switch-model": true,
+    "plan-flow": true
   },
   "interaction": {
     "runPolicy": "until-gate",

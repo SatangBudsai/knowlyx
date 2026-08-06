@@ -7,7 +7,7 @@ no build, no tests to run. Contributing means improving text.
 
 ## What you can improve
 
-- **The protocol** — [`AGENTS.md`](AGENTS.md). The source of truth for how agents
+- **The protocol** — [`agents/sage/AGENTS.md`](agents/sage/AGENTS.md). The source of truth for how `/sage` runs when invoked
   behave. Keep it clear, ordered, and tool-agnostic.
 - **Starter knowledge** — [`agents/sage/`](agents/sage/). Add or refine
   domain `rules.md` / `decisions/*.md`. Keep entries small (one idea per file) and

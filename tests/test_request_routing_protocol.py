@@ -46,7 +46,7 @@ class RequestRoutingProtocolTests(unittest.TestCase):
                 self.assertIn(required, invariants)
 
     def test_canonical_router_names_all_routes_and_is_checklist_independent(self) -> None:
-        agents = read("AGENTS.md")
+        agents = read("agents/sage/AGENTS.md")
         sage = read("agents/sage/commands/sage.md")
 
         for route in (
@@ -62,7 +62,7 @@ class RequestRoutingProtocolTests(unittest.TestCase):
         self.assertIn("independent of `plan-flow`", compact(sage))
 
     def test_pre_action_pass_asks_only_for_missing_material_decisions(self) -> None:
-        agents = compact(read("AGENTS.md"))
+        agents = compact(read("agents/sage/AGENTS.md"))
         sage = compact(read("agents/sage/commands/sage.md"))
         grill = compact(read("agents/sage/commands/sage-grill.md"))
         flow = compact(read("agents/sage/flows/pre-action-clarification-flow.md"))
@@ -114,7 +114,7 @@ class RequestRoutingProtocolTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, grill)
 
-        context_contract = read("AGENTS.md")
+        context_contract = read("agents/sage/AGENTS.md")
         for field in ("**Definition:**", "**Invariants:**", "**Includes:**", "**Excludes:**"):
             with self.subTest(context_field=field):
                 self.assertIn(field, context_contract)
@@ -166,7 +166,7 @@ class RequestRoutingProtocolTests(unittest.TestCase):
     def test_legacy_decision_map_path_is_removed(self) -> None:
         protocol = "\n".join(
             (
-                read("AGENTS.md"),
+                read("agents/sage/AGENTS.md"),
                 read("agents/sage/commands/sage.md"),
                 read("agents/sage/commands/sage-grill.md"),
                 read("agents/sage/commands/sage-flow.md"),

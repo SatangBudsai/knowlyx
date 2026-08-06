@@ -130,34 +130,24 @@ never weaken the risk gates in §1.4.
 - **update-docs** → runs `/sage-docs` to refresh the flow docs the change touched.
   Self-skips only when the change touches no documented flow.
 
-**Toggles — default ✓; Sage may propose an uncheck, the human decides:**
+**Run options — `/sage` stays lightweight; specialist checks are explicit commands:**
 
 | Toggle              | Runs                    | On means                                                                                                                     |
 | ------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `auto-switch-model` | inline (§1.4)           | right-size reasoning per task: pick the effort/tier, and push a down-shiftable sub-task to a smaller/cheaper sub-agent to save tokens — **never** above the session model/effort (a hard **cost** ceiling, so nothing burns tokens unbudgeted), never below it for `plan-flow`; does **not** change the running session model (§1.4) |
+| `suggest-switch-model` | inline (§1.4)        | when a task is suitable for a lower effort/model, ask the human whether to downshift; never switch silently and never exceed the session ceiling |
 | `plan-flow`         | `/sage-flow`            | build the full flow **and** verify it before coding (two tasks — see below)                                                  |
-| `unit-test`         | `/sage-unit-test`       | write unit tests for the logic added or changed                                                                              |
-| `e2e-test`          | `/sage-e2e-test`        | drive the flow end-to-end (browser/load) and prove it — asks tool + retest policy                                            |
-| `security-review`   | `/sage-security-review` | review sensitive changes (auth, payment, PII, secrets) for exploitable holes                                                 |
 
-**The picker is LOCKED — identical on every run, every machine, every tool; do NOT
-improvise it.** Show **exactly these five, in this order, always** — never add one
-(no "None", no "just answer"), drop one, reorder, or rename:
-**`auto-switch-model` · `plan-flow` · `unit-test` · `e2e-test` ·
-`security-review`**. In Claude Code use `AskUserQuestion` (multi-select); where
-there is no structured picker, print a numbered Markdown list and accept a reply
-like `1,3,5`.
+Run `/sage-unit-test`, `/sage-e2e-test`, or `/sage-security-review` explicitly
+when those specialist controls are wanted; they are never selected by `/sage`.
 
-**Recommend honestly — the label MUST match the reason.** Mark each step
-`recommended` or `not recommended` from the task's signals (logic → `unit-test`; a
-cross-boundary flow → `e2e-test`; auth/money/PII/secrets → `security-review`;
-cross-boundary journey, public contract, schema, auth/payment, or real
-architecture uncertainty → `plan-flow`). Multi-file size, an ordinary bug, or a
-dependency change alone is not enough. **Never recommend a step
-whose reason is "not applicable" or "only if…".** In `auto`, enable the
-recommended set and proceed; in `ask`, start from the saved `checklist`, present
-it, and let the human decide (then persist). The full signal → recommendation
-rules live in `agents/sage/commands/sage.md`.
+`/sage` has no specialist checklist picker. It may ask one focused question about
+`suggest-switch-model` when a lower model/effort is materially suitable; otherwise
+it proceeds with the selected `plan-flow` behavior. Specialist commands are
+invoked directly by the human.
+
+Model suggestions are conditional, not automatic: ask only when the task can be
+handled safely at a lower tier and explain the token/capability trade-off. The
+full interaction rules live in `agents/sage/commands/sage.md`.
 
 `.sage-local.json` shape (gitignored; `mode` is `"auto"` or `"ask"`; change it via
 `/sage-setting`):
@@ -167,11 +157,8 @@ rules live in `agents/sage/commands/sage.md`.
   "version": 3,
   "mode": "auto",
   "checklist": {
-    "auto-switch-model": true,
-    "plan-flow": true,
-    "unit-test": true,
-    "e2e-test": false,
-    "security-review": false
+    "suggest-switch-model": true,
+    "plan-flow": true
   },
   "interaction": {
     "runPolicy": "until-gate",
@@ -186,7 +173,7 @@ rules live in `agents/sage/commands/sage.md`.
 Open the run by echoing the checklist on one line:
 
 ```text
-Checklist · mode:auto · ✓ auto-switch-model · ✓ plan-flow → /sage-flow · ✓ unit-test → /sage-unit-test · ~~e2e-test~~ (no UI flow) · ~~security-review~~ (not sensitive)  ·  core: automate-test + update-docs → /sage-docs
+Checklist · mode:auto · ✓ suggest-switch-model (ask before downshift) · ✓ plan-flow → /sage-flow · specialist checks: explicit `/sage-unit-test`, `/sage-e2e-test`, `/sage-security-review` · core: automate-test + update-docs → /sage-docs
 ```
 
 **`plan-flow` runs `/sage-flow`, which is two tasks in this order — never just
@@ -381,19 +368,10 @@ Do these in order. Do not skip. Do not assume you already know the answer.
      Claude-style: `fast`→haiku/low, `standard`→sonnet, `deep`→opus/ceiling), but
      the session ceiling always wins. Never raise a hard tier above the session
      level just because a task is "complex".
-   - **How "switching" actually works — down only, via sub-agents, never over the
-     ceiling.** You cannot lower the _running session's_ model yourself (that is
-     the human's `/model`). So `auto-switch-model` has two honest levers: pick the
-     **effort/reasoning tier** within the session, and **push a down-shiftable
-     sub-task to a smaller, cheaper sub-agent** (e.g. Haiku via the Task tool) so
-     mechanical work doesn't burn the session model's tokens. The direction is
-     **only downward** — **never spawn a sub-agent above the session model, and
-     never raise effort above the session**, because that silently eats tokens the
-     human never budgeted for. The session model + effort is a hard ceiling on
-     **cost**, not just capability. **Mind the overhead:** a sub-agent carries its
-     own context, so delegate only when the task is big enough to earn it — a
-     one-line edit is cheaper done inline at the session model. If no lever helps,
-     state the tier as intent only and run inline — never narrate a switch you
+   - **How model suggestions work — ask before downshifting.** You cannot lower
+     the running session's model yourself. When a task is safely downshiftable,
+     ask the human whether to use a lower effort/model; otherwise keep the current
+     ceiling. Never raise effort above the session and never claim a switch you
      cannot perform.
    - **Never downgrade flow design.** `plan-flow` / `/sage-flow` is the
      highest-reasoning step there is — it always runs at the **full session model
@@ -404,7 +382,7 @@ Do these in order. Do not skip. Do not assume you already know the answer.
      State at each phase start: `[parallel: A, B running]` or
      `[sequential: C — depends on A, B]`.
 
-   **Run-until-gate loop.** Under `interaction.runPolicy: "until-gate"`, the
+     **Run-until-gate loop.** Under `interaction.runPolicy: "until-gate"`, the
    parent `/sage` owns continuation:
 
    ```text

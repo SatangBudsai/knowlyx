@@ -13,7 +13,7 @@ controls อิง risk drivers โดยตรงและไม่สามา
 
 การตัดสินใจหลัก:
 
-- `AGENTS.md` เป็น source of truth ของ risk policy; command อื่นอ้างถึง policy นี้
+- `agents/sage/AGENTS.md` เป็น source of truth ของ risk policy; command อื่นอ้างถึง policy นี้
   และเพิ่มเฉพาะขั้นตอนเฉพาะ command
 - `mode:auto` อนุญาตให้ข้าม checklist confirmation เท่านั้น ไม่อนุญาตให้ข้าม
   genuine human decision, matched `block` rule หรือ destructive `HIGH` risk

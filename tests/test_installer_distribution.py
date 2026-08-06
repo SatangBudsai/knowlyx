@@ -89,9 +89,10 @@ class InstallerDistributionTests(unittest.TestCase):
         return result
 
     def assert_fresh_install(self, target: Path, output: str) -> None:
+        self.assertFalse((target / "AGENTS.md").exists())
         self.assertEqual(
-            (target / "AGENTS.md").read_text(encoding="utf-8"),
-            read("AGENTS.md"),
+            (target / "agents/sage/AGENTS.md").read_text(encoding="utf-8"),
+            read("agents/sage/AGENTS.md"),
         )
         for relative_path in manifest_entries("install-manifest.txt"):
             with self.subTest(relative_path=relative_path):
@@ -113,6 +114,17 @@ class InstallerDistributionTests(unittest.TestCase):
             (target / ".codex/prompts/sage.md").read_text(encoding="utf-8"),
             read("integrations/.codex/prompts/sage.md"),
         )
+        self.assertEqual(
+            (target / ".codex/skills/sage/SKILL.md").read_text(encoding="utf-8"),
+            read("integrations/.codex/skills/sage/SKILL.md"),
+        )
+        for relative_path in (
+            "integrations/.cursor/commands/sage.md",
+            "integrations/.windsurf/workflows/sage.md",
+            "integrations/.github/prompts/sage.prompt.md",
+        ):
+            with self.subTest(relative_path=relative_path):
+                self.assertTrue((ROOT / relative_path).is_file())
         self.assertIn("preflight passed", output)
         self.assertIn(
             "Project DNA spec: agents/sage/flows/project-dna-flow.md",
@@ -166,7 +178,6 @@ class InstallerDistributionTests(unittest.TestCase):
     def source_fixture(self, destination: Path) -> Path:
         source = destination / "source"
         source.mkdir()
-        shutil.copy2(ROOT / "AGENTS.md", source / "AGENTS.md")
         shutil.copytree(ROOT / "agents", source / "agents")
         shutil.copytree(ROOT / "integrations", source / "integrations")
         return source

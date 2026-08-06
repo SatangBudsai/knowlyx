@@ -11,7 +11,7 @@ def read(relative_path: str) -> str:
 
 class RiskProtocolContractTests(unittest.TestCase):
     def test_canonical_policy_has_operational_risk_lifecycle(self) -> None:
-        agents = read("AGENTS.md")
+        agents = read("agents/sage/AGENTS.md")
 
         required_contract = (
             "Impact",
@@ -27,7 +27,7 @@ class RiskProtocolContractTests(unittest.TestCase):
                 self.assertIn(marker, agents)
 
     def test_auto_mode_cannot_approve_high_risk(self) -> None:
-        agents = read("AGENTS.md")
+        agents = read("agents/sage/AGENTS.md")
         sage = read("agents/sage/commands/sage.md")
 
         self.assertIn("mode:auto` skips only", agents)
@@ -38,7 +38,7 @@ class RiskProtocolContractTests(unittest.TestCase):
         )
 
     def test_driver_controls_cover_core_failure_classes(self) -> None:
-        agents = read("AGENTS.md")
+        agents = read("agents/sage/AGENTS.md")
 
         for driver in (
             "destructive / data loss",
@@ -71,7 +71,7 @@ class RiskProtocolContractTests(unittest.TestCase):
                 self.assertIn("Residual", content)
 
     def test_summary_contract_reports_initial_and_residual_risk(self) -> None:
-        agents = read("AGENTS.md")
+        agents = read("agents/sage/AGENTS.md")
 
         self.assertGreaterEqual(agents.count("**Initial risk**"), 2)
         self.assertGreaterEqual(agents.count("**Residual risk**"), 2)

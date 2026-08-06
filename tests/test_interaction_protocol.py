@@ -15,9 +15,18 @@ def compact(value: str) -> str:
 
 
 class InteractionProtocolTests(unittest.TestCase):
+    def test_protocol_is_opt_in_and_specialist_checks_are_explicit(self) -> None:
+        self.assertFalse((ROOT / "AGENTS.md").exists())
+        agents = compact(read("agents/sage/AGENTS.md"))
+        self.assertIn("suggest-switch-model", agents)
+        self.assertNotIn('"auto-switch-model"', agents)
+        self.assertNotIn('"unit-test"', agents)
+        self.assertNotIn('"e2e-test"', agents)
+        self.assertNotIn('"security-review"', agents)
+
     def test_version_3_separates_checklist_and_interaction_policy(self) -> None:
         for path in (
-            "AGENTS.md",
+            "agents/sage/AGENTS.md",
             "agents/sage/commands/sage.md",
             "agents/sage/commands/sage-setting.md",
         ):
@@ -32,19 +41,15 @@ class InteractionProtocolTests(unittest.TestCase):
                 self.assertIn('"continueAfterHandoff": true', content)
 
     def test_picker_is_capability_aware_and_auto_never_prompts(self) -> None:
-        agents = compact(read("AGENTS.md"))
+        agents = compact(read("agents/sage/AGENTS.md"))
         sage = compact(read("agents/sage/commands/sage.md"))
 
-        for content in (agents, sage):
-            self.assertIn("Native multi-select", content)
-            self.assertIn("Structured single-select", content)
-            self.assertIn("Run recommended", content)
-            self.assertIn("Use saved defaults", content)
-            self.assertIn("-e2e +security", content)
-            self.assertIn("provider name", content)
-
-        self.assertIn("mode:auto` never opens any of these pickers", agents)
-        self.assertIn("do not open any picker", sage)
+        self.assertIn("suggest-switch-model", agents)
+        self.assertIn("plan-flow", agents)
+        self.assertIn("specialist commands", agents.lower())
+        self.assertIn("suggest-switch-model", sage)
+        self.assertIn("/sage-e2e-test", sage)
+        self.assertIn("do not open any picker", sage.lower())
         self.assertNotIn(
             "Preferred structured picker, else Markdown fallback (numbers",
             sage,
@@ -64,7 +69,7 @@ class InteractionProtocolTests(unittest.TestCase):
         self.assertNotIn("once you confirm", public_docs)
 
     def test_run_until_gate_continues_across_child_handoffs(self) -> None:
-        agents = compact(read("AGENTS.md"))
+        agents = compact(read("agents/sage/AGENTS.md"))
         sage = compact(read("agents/sage/commands/sage.md"))
 
         for marker in (
@@ -122,7 +127,7 @@ class InteractionProtocolTests(unittest.TestCase):
     def test_question_policy_batches_only_independent_decisions(self) -> None:
         surfaces = "\n".join(
             (
-                read("AGENTS.md"),
+                read("agents/sage/AGENTS.md"),
                 read("agents/sage/commands/sage-grill.md"),
                 read("agents/sage/commands/sage-flow.md"),
             )
@@ -134,7 +139,7 @@ class InteractionProtocolTests(unittest.TestCase):
         self.assertIn("dependent", surfaces)
 
     def test_question_policy_does_not_force_ceremonial_questions(self) -> None:
-        agents = compact(read("AGENTS.md"))
+        agents = compact(read("agents/sage/AGENTS.md"))
         sage = compact(read("agents/sage/commands/sage.md"))
         public_docs = compact(
             "\n".join((read("README.md"), read("docs/run-until-gate.md")))
@@ -151,7 +156,7 @@ class InteractionProtocolTests(unittest.TestCase):
         self.assertIn("does **not** mean it asks a question every time", public_docs)
 
     def test_plan_flow_trigger_is_not_file_count_or_routine_bug(self) -> None:
-        agents = compact(read("AGENTS.md"))
+        agents = compact(read("agents/sage/AGENTS.md"))
         sage = compact(read("agents/sage/commands/sage.md"))
 
         self.assertIn(
@@ -185,7 +190,7 @@ class InteractionProtocolTests(unittest.TestCase):
                 self.assertLessEqual(len(body_words), 170)
 
     def test_interaction_preferences_cannot_disable_safety_gates(self) -> None:
-        agents = compact(read("AGENTS.md"))
+        agents = compact(read("agents/sage/AGENTS.md"))
         flow = compact(read("agents/sage/flows/run-until-gate-flow.md"))
 
         for marker in (

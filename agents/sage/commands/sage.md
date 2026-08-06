@@ -16,6 +16,17 @@ For code-changing tasks, Steps 1-5 are mandatory. For pure questions, advice, ex
 
 ---
 
+## Current lightweight contract
+
+This repository uses `agents/sage/AGENTS.md` as the opt-in protocol. `/sage`
+offers only `suggest-switch-model` and `plan-flow`. It asks before any model
+downshift and never silently changes model or effort. Unit, E2E, and security
+checks are explicit standalone commands: `/sage-unit-test`, `/sage-e2e-test`,
+and `/sage-security-review`; they are not checklist choices for `/sage`.
+
+The older five-choice checklist text below is historical reference only and is
+superseded by this contract.
+
 ## Command modes
 
 `/sage` has two modes:
@@ -45,11 +56,8 @@ Default config:
   "version": 3,
   "mode": "auto",
   "checklist": {
-    "auto-switch-model": true,
-    "plan-flow": true,
-    "unit-test": true,
-    "e2e-test": false,
-    "security-review": false
+    "suggest-switch-model": true,
+    "plan-flow": true
   },
   "interaction": {
     "runPolicy": "until-gate",
@@ -188,13 +196,13 @@ When unsure, choose the safer recommendation.
 
 ### Step 0d — always keep the same five choices
 
-These are the only checklist choices. Always show all five when a checklist is shown.
+`/sage` has only two run options: `suggest-switch-model` and `plan-flow`.
+Unit, E2E, and security work are explicit standalone commands and are never
+selected by `/sage`.
 
-1. **auto-switch-model** — right-size reasoning: pick the effort/reasoning tier within the ceiling, and push a down-shiftable sub-task to a smaller, cheaper sub-agent to save tokens (only when the task is big enough to beat the sub-agent's overhead). Never above the session model/effort — a hard cost ceiling so nothing burns tokens unbudgeted; does not change the running session model
+1. **suggest-switch-model** — ask the human before using a lower effort/model when the task is safely downshiftable; never switch silently.
 2. **plan-flow** — design and verify the flow before coding (`/sage-flow`)
-3. **unit-test** — write or update focused tests for changed logic (`/sage-unit-test`)
-4. **e2e-test** — verify behavior end-to-end through UI, API, CLI, integration, browser, mobile, desktop, or load checks (`/sage-e2e-test`)
-5. **security-review** — review sensitive, exposed, or abuse-prone changes for holes (`/sage-security-review`)
+3. Specialist checks are invoked explicitly with `/sage-unit-test`, `/sage-e2e-test`, or `/sage-security-review`.
 
 Do not add a sixth option. Do not add `None`. Do not add `just answer`. Pure questions never reach this step.
 

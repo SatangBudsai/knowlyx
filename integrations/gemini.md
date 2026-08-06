@@ -1,7 +1,7 @@
 # Sage
 
 This project uses **Sage**, a cognition protocol. Before writing or modifying any
-code, read and follow **`AGENTS.md`** at the repo root — it is the single source
+code, read and follow **`agents/sage/AGENTS.md`** when `/sage` is invoked — it is the single source
 of truth (role selection, the run checklist in §0, risk header, knowledge
 capture, the mandatory summary block). Follow it verbatim.
 

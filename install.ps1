@@ -237,8 +237,8 @@
     }
 
     # --- preflight every distribution input before the first target write ---
-    if (-not (Test-Path -LiteralPath "$sourceRoot/AGENTS.md" -PathType Leaf)) {
-      throw 'source is missing AGENTS.md.'
+    if (-not (Test-Path -LiteralPath "$sourceRoot/agents/sage/AGENTS.md" -PathType Leaf)) {
+      throw 'source is missing agents/sage/AGENTS.md.'
     }
     if (-not (Test-Path -LiteralPath "$sourceRoot/agents/sage/commands" -PathType Container)) {
       throw 'source is missing agents/sage/commands/.'
@@ -263,6 +263,9 @@
         if (-not (Test-Path -LiteralPath "$sourceRoot/integrations/gemini.md" -PathType Leaf)) {
           throw 'source is missing the Gemini adapter.'
         }
+        if (-not (Test-Path -LiteralPath "$sourceRoot/integrations/.gemini/commands" -PathType Container)) {
+          throw 'source is missing the Gemini slash-command adapter.'
+        }
       }
       elseif (-not (Test-Path -LiteralPath "$sourceRoot/integrations/$($t.src)" -PathType Container)) {
         throw "source is missing the $($t.name) adapter."
@@ -273,8 +276,10 @@
     # --- protocol + Sage-owned files. Exact manifest paths are reserved; all
     #     other knowledge, role edits, flows, docs, adapters, and local config survive. ---
     Write-Host 'Sage: writing protocol + commands ...'
-    Copy-Item "$sourceRoot/AGENTS.md" './AGENTS.md' -Force
-    Write-Host '  + AGENTS.md'
+    New-Item -ItemType Directory -Force -Path 'agents/sage' | Out-Null
+    Copy-Item "$sourceRoot/agents/sage/AGENTS.md" 'agents/sage/AGENTS.md' -Force
+    Remove-Item './AGENTS.md' -Force -ErrorAction SilentlyContinue
+    Write-Host '  + agents/sage/AGENTS.md'
     if (Test-Path 'agents/sage/commands') { Remove-Item 'agents/sage/commands' -Recurse -Force -ErrorAction SilentlyContinue }
     New-Item -ItemType Directory -Force -Path 'agents/sage' | Out-Null
     Copy-Item "$sourceRoot/agents/sage/commands" 'agents/sage/commands' -Recurse -Force
@@ -302,7 +307,11 @@
     $installed = @()
     foreach ($k in $picked) {
       $t = $tools[$k]
-      if ($k -eq 'gemini') { Copy-Item "$sourceRoot/integrations/gemini.md" './GEMINI.md' -Force }
+      if ($k -eq 'gemini') {
+        Copy-Item "$sourceRoot/integrations/gemini.md" './GEMINI.md' -Force
+        New-Item -ItemType Directory -Force -Path '.gemini' | Out-Null
+        Copy-Item "$sourceRoot/integrations/.gemini/commands" '.gemini/' -Recurse -Force
+      }
       else {
         New-Item -ItemType Directory -Force -Path $t.dest | Out-Null
         foreach ($base in $adapterFiles) {
@@ -323,7 +332,7 @@
     Write-Host 'Project DNA spec: agents/sage/flows/project-dna-flow.md'
     Write-Host ''
     Write-Host 'Commands now available:'
-    Write-Host '  /sage                 run before any code change (plan, test, review, capture)'
+    Write-Host '  /sage                 run before a code change when explicitly invoked'
     Write-Host '  /sage-grill           resolve single-session fog + glossary/checkpoint decisions'
     Write-Host '  /sage-wayfinder       map multi-session fog as durable decision tickets'
     Write-Host '  /sage-flow            design + verify an implementation-ready flow before coding'

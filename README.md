@@ -24,9 +24,9 @@ four questions against your team's rules, and _then_ codes — or stops and asks
 
 The release you can install today has no server, build, or Python. Sage is a
 cognition protocol —
-**[`AGENTS.md`](https://github.com/qorstack/sage/blob/main/AGENTS.md)** plus a
+**[`agents/sage/AGENTS.md`](https://github.com/qorstack/sage/blob/main/agents/sage/AGENTS.md)** plus a
 folder of Markdown commands and team knowledge you read, edit, and `git push`.
-One command installs it; any agent that reads `AGENTS.md` (Claude Code, Cursor,
+One command installs it; agents load the protocol when `/sage` is explicitly invoked (Claude Code, Cursor,
 Codex, Copilot…) follows it.
 
 ## Next architecture — Project DNA (specified, not shipped)
@@ -64,7 +64,7 @@ bash -c "$(curl -fsSL https://cdn.jsdelivr.net/gh/qorstack/sage@latest/install.s
 irm https://cdn.jsdelivr.net/gh/qorstack/sage@latest/install.ps1 | iex
 ```
 
-It overwrites only Sage's reserved paths: `AGENTS.md`, the commands directory,
+It overwrites only Sage's reserved paths: `agents/sage/AGENTS.md`, the commands directory,
 the exact files in `agents/sage/install-manifest.txt`, and the selected tools'
 exact adapter files. Custom knowledge, role edits, non-managed flows, `docs/`,
 `.sage-local.json`, and unrelated adapter files survive updates. The installed
@@ -76,12 +76,12 @@ knowledge from your codebase.
 <summary><b>Prefer to install by hand?</b></summary>
 
 **1. Copy the protocol.** Download
-[`AGENTS.md`](https://github.com/qorstack/sage/blob/main/AGENTS.md) into your repo
+[`agents/sage/AGENTS.md`](https://github.com/qorstack/sage/blob/main/agents/sage/AGENTS.md) into your repo
 root, then copy `agents/sage/` from this repo (the canonical commands, the
 style-guide, and starter knowledge). Or clone and copy:
 
 ```bash
-git clone --depth 1 https://github.com/qorstack/sage t && cp t/AGENTS.md . && cp -r t/agents . && rm -rf t
+git clone --depth 1 https://github.com/qorstack/sage t && mkdir -p agents/sage && cp t/agents/sage/AGENTS.md agents/sage/ && cp -r t/agents/sage/* agents/sage/ && rm -rf t
 ```
 
 **2. Wire up your agent.** **Claude Code, Codex, OpenCode, Antigravity** read
@@ -347,7 +347,7 @@ on GitHub, not an AI.
 
 ## Works with every agent
 
-`AGENTS.md` is read natively by **Claude Code, Codex, OpenCode, Antigravity**.
+`agents/sage/AGENTS.md` is loaded by `/sage` on **Claude Code, Codex, OpenCode, Antigravity**.
 For **Cursor, Windsurf, Cline, Copilot, Gemini**, drop in a one-line adapter from
 [`integrations/`](integrations/) — each just points the tool at `AGENTS.md`.
 

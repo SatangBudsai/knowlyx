@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Purge @latest bootstrap files
         run: |
-          for f in install.sh install.ps1 AGENTS.md; do
+          for f in install.sh install.ps1 agents/sage/AGENTS.md; do
             echo "Purging $f ..."
             curl -fsS "https://purge.jsdelivr.net/gh/qorstack/sage@latest/$f" && echo
           done

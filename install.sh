@@ -207,7 +207,7 @@ else
 fi
 
 # --- preflight every distribution input before the first target write ---
-[ -f "$SOURCE_ROOT/AGENTS.md" ] || fail "source is missing AGENTS.md."
+[ -f "$SOURCE_ROOT/agents/sage/AGENTS.md" ] || fail "source is missing agents/sage/AGENTS.md."
 [ -d "$SOURCE_ROOT/agents/sage/commands" ] || fail "source is missing agents/sage/commands/."
 [ -f "$SOURCE_ROOT/agents/sage/index.md" ] || fail "source is missing agents/sage/index.md."
 [ -d "$SOURCE_ROOT/agents/sage/roles" ] || fail "source is missing agents/sage/roles/."
@@ -244,6 +244,7 @@ done <"$SOURCE_ROOT/agents/sage/adapter-manifest.txt"
 for k in $picked; do
   if [ "$k" = gemini ]; then
     [ -f "$SOURCE_ROOT/integrations/gemini.md" ] || fail "source is missing the Gemini adapter."
+    [ -d "$SOURCE_ROOT/integrations/.gemini" ] || fail "source is missing the Gemini slash-command adapter."
   else
     src=$(key_src "$k")
     [ -d "$SOURCE_ROOT/integrations/$src" ] || fail "source is missing the $(key_name "$k") adapter."
@@ -254,8 +255,10 @@ printf '  \342\234\223 preflight passed\n'
 # --- protocol + Sage-owned files. Exact manifest paths are reserved; all other
 #     knowledge, role edits, flows, docs, adapters, and .sage-local.json survive. ---
 printf 'Sage: writing protocol + commands ...\n'
-cp "$SOURCE_ROOT/AGENTS.md" ./AGENTS.md
-printf '  \342\234\223 AGENTS.md\n'
+mkdir -p agents/sage
+cp "$SOURCE_ROOT/agents/sage/AGENTS.md" ./agents/sage/AGENTS.md
+rm -f ./AGENTS.md
+printf '  \342\234\223 agents/sage/AGENTS.md\n'
 rm -rf agents/sage/commands                       # 100% Sage-owned; clears any old/renamed command
 mkdir -p agents/sage
 cp -r "$SOURCE_ROOT/agents/sage/commands" agents/sage/commands
@@ -283,6 +286,8 @@ installed=""
 for k in $picked; do
   if [ "$k" = gemini ]; then
     cp "$SOURCE_ROOT/integrations/gemini.md" ./GEMINI.md
+    mkdir -p .gemini
+    cp -r "$SOURCE_ROOT/integrations/.gemini/commands" .gemini/
   else
     src=$(key_src "$k")
     mkdir -p "$src"
@@ -302,7 +307,7 @@ Sage installed. Adapters for:${installed%,}
 Project DNA spec: agents/sage/flows/project-dna-flow.md
 
 Commands now available:
-  /sage                 run before any code change (plan, test, review, capture)
+  /sage                 run before a code change when explicitly invoked
   /sage-grill           resolve single-session fog + glossary/checkpoint decisions
   /sage-wayfinder       map multi-session fog as durable decision tickets
   /sage-flow            design + verify an implementation-ready flow before coding

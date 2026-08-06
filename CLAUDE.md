@@ -8,7 +8,7 @@ Sage is a **cognition protocol** for AI coding agents, shipped as a single
 declarative file — not a program. There is **no Python, no server, no build**.
 The product is:
 
-- **[`AGENTS.md`](AGENTS.md)** — the protocol itself (the source of truth). Edit
+- **[`agents/sage/AGENTS.md`](agents/sage/AGENTS.md)** — the opt-in protocol itself (the source of truth). Edit
   this to change how agents behave: the pre-code pipeline, the knowledge
   convention, conversation-capture, enforcement levels, the risk header.
 - **`agents/sage/`** — starter cognition knowledge as Markdown (YAML

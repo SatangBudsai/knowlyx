@@ -3,7 +3,7 @@
 The installer updates only the exact Sage-owned paths listed in
 [`install-manifest.txt`](install-manifest.txt), plus:
 
-- `AGENTS.md`
+- `agents/sage/AGENTS.md`
 - `agents/sage/commands/` (the only directory replaced as a whole)
 - the selected tools' exact adapter files listed by basename in
   [`adapter-manifest.txt`](adapter-manifest.txt)

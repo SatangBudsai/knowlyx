@@ -4,7 +4,7 @@
 no §0 checklist, no gauging, no plan, no reading the codebase, no extra reasoning.
 The whole point is to spend as few tokens as possible: ask, then run one command.
 
-It re-runs the official installer, which overwrites `AGENTS.md`,
+It re-runs the official installer, which overwrites `agents/sage/AGENTS.md`,
 `agents/sage/commands/`, the exact files in
 `agents/sage/install-manifest.txt`, and the selected tools' exact adapter files.
 It never removes unlisted knowledge, role edits, flows, docs,

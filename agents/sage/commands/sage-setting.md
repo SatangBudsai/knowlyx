@@ -16,11 +16,8 @@ team or committed.
   "version": 3,
   "mode": "auto",
   "checklist": {
-    "auto-switch-model": true,
-    "plan-flow": true,
-    "unit-test": true,
-    "e2e-test": false,
-    "security-review": false
+    "suggest-switch-model": true,
+    "plan-flow": true
   },
   "interaction": {
     "runPolicy": "until-gate",
@@ -34,8 +31,8 @@ team or committed.
 
 - **`mode`** — `"auto"` (decide the steps and proceed without prompting) or
   `"ask"` (show the checklist and wait for the human, every code change).
-- **`checklist`** — the default checked/unchecked state for the five steps; the
-  recommendation engine still adjusts per task.
+- **`checklist`** — the defaults for model suggestion and flow planning. Specialist
+  checks are explicit commands, not `/sage` checklist entries.
 - **`interaction.runPolicy`** — `"until-gate"` (continue through unblocked work
   and child handoffs) or `"strict"` (return at command checkpoints).
 - **`interaction.questionPolicy`** — `"batch-independent"` or
@@ -66,8 +63,8 @@ present; create it with the defaults above if missing; add `.sage-local.json` to
 | "show settings" / just `/sage-setting` | Print the active repo, checklist mode/defaults, interaction policy, and whether `.sage-local.json` is gitignored. Then offer the changes below. |
 | "ask me every time" / "mode ask"       | Set `mode: "ask"`.                                                                                                                  |
 | "don't ask / auto" / "mode auto"       | Set `mode: "auto"`.                                                                                                                 |
-| "default steps 1,3,5" / names          | Set those `checklist` keys `true`, the rest `false` (1=auto-switch-model, 2=plan-flow, 3=unit-test, 4=e2e-test, 5=security-review). |
-| "all steps on"                         | Set all five `checklist` keys `true`.                                                                                               |
+| "default steps" / names                | Set `suggest-switch-model` and/or `plan-flow`; specialist commands are run explicitly. |
+| "all steps on"                         | Set both `/sage` options `true`. |
 | "run until gate" / "continue automatically" | Set `interaction.runPolicy: "until-gate"` and `continueAfterHandoff: true`. |
 | "strict checkpoints"                   | Set `interaction.runPolicy: "strict"`.                                                                                              |
 | "batch questions"                      | Set `questionPolicy: "batch-independent"` and ask for a max of 1–3 only if not supplied.                                            |
@@ -88,7 +85,7 @@ name. Ask only for the setting that is actually ambiguous.
 except on reset) and **echo the result** on one line, e.g.:
 
 ```text
-Sage settings · mode: ask · run: until-gate · questions: batch-independent/3 · default steps: auto-switch-model, plan-flow, unit-test · .sage-local.json (gitignored)
+Sage settings · mode: ask · run: until-gate · questions: batch-independent/3 · default steps: suggest-switch-model, plan-flow · .sage-local.json (gitignored)
 ```
 
 Then stop. No summary block, no knowledge capture — this only edits local config.
