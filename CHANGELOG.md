@@ -4,6 +4,28 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-08-19
+
+### Added
+
+- **`/sage-refactoring-code`** — a standalone, stack-agnostic skill for writing
+  and refactoring readable application code, components, functions, utilities,
+  modules, and database schemas. It follows clear project vocabulary without
+  copying accidental complexity, reduces unnecessary nesting and speculative
+  abstraction, and preserves correctness, security, data integrity, and public
+  behavior before simplifying.
+- Thin adapters expose the skill across Claude Code, Codex, Cursor, GitHub
+  Copilot, Gemini CLI, Windsurf, and Cline. Codex also receives a discoverable
+  `$sage-refactoring-code` skill package.
+
+### Fixed
+
+- Restored the canonical `plan-flow` recommendation boundary in `AGENTS.md`,
+  keeping routine multi-file work, ordinary bugs, and dependency changes from
+  triggering flow design solely because of their category.
+
+## [1.1.0] — 2026-08-06
+
 ### Added — cognition upgrades
 
 - **Project DNA architecture specification** — defines Sage's preparation-first

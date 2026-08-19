@@ -137,6 +137,9 @@ never weaken the risk gates in §1.4.
 | `suggest-switch-model` | inline (§1.4)        | when a task is suitable for a lower effort/model, ask the human whether to downshift; never switch silently and never exceed the session ceiling |
 | `plan-flow`         | `/sage-flow`            | build the full flow **and** verify it before coding (two tasks — see below)                                                  |
 
+Recommend `plan-flow` when the implementation needs end-to-end design decisions.
+Multi-file size, an ordinary bug, or a dependency change alone is not enough.
+
 Run `/sage-unit-test`, `/sage-e2e-test`, or `/sage-security-review` explicitly
 when those specialist controls are wanted; they are never selected by `/sage`.
 
