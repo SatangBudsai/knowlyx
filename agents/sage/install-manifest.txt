@@ -8,6 +8,7 @@ agents/sage/docs-style-template.md
 agents/sage/flows/installer-managed-assets-flow.md
 agents/sage/flows/pre-action-clarification-flow.md
 agents/sage/flows/project-dna-flow.md
+agents/sage/flows/refactoring-code-skill-flow.md
 agents/sage/flows/request-routing-wayfinder-flow.md
 agents/sage/flows/risk-controls-flow.md
 agents/sage/flows/run-until-gate-flow.md

@@ -118,6 +118,10 @@ After installing, run these commands in sequence. Each builds on the last.
 > **Skip step 1?** Sage still works — it just starts with no team context.
 > Run `/sage-learning` later whenever you want to seed knowledge from real code.
 
+Use `/sage-refactoring-code` when new or existing code should be easier to read,
+move, and change without speculative abstraction. It covers components,
+functions, utilities, modules, and database schemas.
+
 **You mostly just use `/sage`.** Before each change it shows a short
 **checklist**. In `mode:auto`, Sage chooses the recommended set and continues
 without asking. In `mode:ask`, it uses a native multi-select picker when the host
@@ -188,6 +192,13 @@ driver-to-control table, gates, and worked examples.
 ---
 
 ## Commands
+
+**`/sage-refactoring-code`** writes or refactors code people can understand and
+change. It follows useful project vocabulary and conventions without copying
+accidental complexity, keeps the main path linear, groups code by real ownership,
+and designs explicit database relationships. Correctness, security, data
+integrity, and public behavior remain more important than short code; flexibility
+is introduced only at boundaries with a concrete reason.
 
 The lifecycle commands you run directly:
 

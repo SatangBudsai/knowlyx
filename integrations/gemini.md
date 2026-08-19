@@ -22,6 +22,7 @@ Don't rely on a copy here; the canonical file is authoritative.
 | `sage-security-review` | `agents/sage/commands/sage-security-review.md` | review a change for security holes        |
 | `sage-docs`            | `agents/sage/commands/sage-docs.md`            | turn a document into a Markdown flow doc  |
 | `sage-learning`        | `agents/sage/commands/sage-learning.md`        | learn this repo + research best practices |
+| `sage-refactoring-code` | `agents/sage/commands/sage-refactoring-code.md` | write/refactor readable code and schemas |
 | `sage-update`          | `agents/sage/commands/sage-update.md`          | update Sage to the latest version         |
 | `sage-setting`         | `agents/sage/commands/sage-setting.md`         | change how /sage runs (mode + steps)      |
 

@@ -17,6 +17,7 @@ practice.
 | `sage-security-review.md` | Review a change for real, exploitable security holes               | checklist toggle `security-review` |
 | `sage-docs.md`            | Create/update a plain-Markdown flow doc → `docs/`                  | core `update-docs`                 |
 | `sage-learning.md`        | Learn this repo's patterns + research best practices for its stack | on demand                          |
+| `sage-refactoring-code.md` | Write/refactor readable code and schemas without speculative layers | on demand                         |
 | `sage-update.md`          | Re-run the installer to update Sage to the latest version          | on demand                          |
 | `sage-setting.md`         | View/change how `/sage` runs (mode + default steps, per machine)   | on demand                          |
 

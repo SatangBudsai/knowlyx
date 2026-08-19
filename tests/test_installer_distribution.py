@@ -118,6 +118,18 @@ class InstallerDistributionTests(unittest.TestCase):
             (target / ".codex/skills/sage/SKILL.md").read_text(encoding="utf-8"),
             read("integrations/.codex/skills/sage/SKILL.md"),
         )
+        self.assertEqual(
+            (target / ".codex/skills/sage-refactoring-code/SKILL.md").read_text(
+                encoding="utf-8"
+            ),
+            read("integrations/.codex/skills/sage-refactoring-code/SKILL.md"),
+        )
+        self.assertEqual(
+            (target / ".codex/prompts/sage-refactoring-code.md").read_text(
+                encoding="utf-8"
+            ),
+            read("integrations/.codex/prompts/sage-refactoring-code.md"),
+        )
         for relative_path in (
             "integrations/.cursor/commands/sage.md",
             "integrations/.windsurf/workflows/sage.md",
@@ -239,6 +251,9 @@ class InstallerDistributionTests(unittest.TestCase):
         self.assertEqual(len(install_entries), len(set(install_entries)))
         self.assertEqual(len(adapter_entries), len(set(adapter_entries)))
         self.assertIn("agents/sage/flows/project-dna-flow.md", install_entries)
+        self.assertIn(
+            "agents/sage/flows/refactoring-code-skill-flow.md", install_entries
+        )
         self.assertIn(
             "agents/sage/flows/installer-managed-assets-flow.md",
             install_entries,

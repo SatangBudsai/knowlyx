@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sage Refactoring Code"
+  short_description: "Write simpler, adaptable code and schemas"
+  default_prompt: "Use $sage-refactoring-code to simplify this code without changing its behavior."

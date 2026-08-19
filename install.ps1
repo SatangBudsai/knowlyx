@@ -341,6 +341,7 @@
     Write-Host '  /sage-security-review review a change for real, exploitable security holes'
     Write-Host '  /sage-docs            turn a spec/flow into a plain-Markdown doc in docs/'
     Write-Host '  /sage-learning        learn this repo''s patterns + research best practices for its stack'
+    Write-Host '  /sage-refactoring-code write/refactor readable code and schemas without speculative layers'
     Write-Host '  /sage-setting         change how /sage runs (mode: auto/ask, default steps)'
     Write-Host '  /sage-update          re-run this installer to update Sage'
     Write-Host ''

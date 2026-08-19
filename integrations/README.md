@@ -70,6 +70,7 @@ use identical syntax.
 | `/sage-security-review` | Review a change for real, exploitable security holes                   |
 | `/sage-docs`            | Turn any document into a plain-Markdown flow doc (`docs/<slug>.md`)    |
 | `/sage-learning`        | Learn this repo's patterns + research best practices for its stack     |
+| `/sage-refactoring-code` | Write/refactor readable code and schemas without speculative layers   |
 | `/sage-update`          | Update Sage in this repo to the latest version (re-runs the installer) |
 | `/sage-setting`         | View/change how `/sage` runs (mode: auto/ask, default steps)           |
 
