@@ -147,18 +147,18 @@ begin, such as an error, stack trace, failing test, logs, reproduction, or named
 location—continues immediately without a ceremonial interview. Central
 HIGH/destructive risk gates still apply.
 
-| Checklist item    | Runs                    | For                                      |
-| ----------------- | ----------------------- | ---------------------------------------- |
-| `plan-flow`       | `/sage-flow`            | design the flow before coding            |
-| `unit-test`       | `/sage-unit-test`       | write unit tests for what changed        |
-| `e2e-test`        | `/sage-e2e-test`        | drive the flow end-to-end (browser/load) |
-| `security-review` | `/sage-security-review` | check sensitive changes for holes        |
-| `update-docs`     | `/sage-docs`            | refresh the human-facing docs            |
+| Type       | Runs                    | For                                                   |
+| ---------- | ----------------------- | ----------------------------------------------------- |
+| run option | `/sage-flow`            | design the flow before coding when `plan-flow` is on |
+| specialist | `/sage-unit-test`       | write unit tests for a target                         |
+| specialist | `/sage-e2e-test`        | autonomously explore and prove real E2E behavior      |
+| specialist | `/sage-security-review` | check sensitive changes for exploitable holes         |
+| core       | `/sage-docs`            | refresh human-facing docs when a flow changed         |
 
-Sage auto-checks what fits the task and auto-unchecks what doesn't (with a
-reason). `mode:auto` runs that set immediately; `mode:ask` asks through the best
-structured input the current session exposes. Every command's full body lives
-once in `agents/sage/commands/`; the per-tool files just point at it.
+`/sage` decides the `plan-flow` run option according to mode and saved settings.
+Unit, E2E, and security specialists are invoked explicitly; disabling or not
+invoking one never removes a driver-specific safety control. Every command's
+full body lives once in `agents/sage/commands/`; per-tool files only point at it.
 
 The version 3 local config also separates checklist selection from interaction:
 `interaction.runPolicy: "until-gate"` keeps working across command/ticket/phase

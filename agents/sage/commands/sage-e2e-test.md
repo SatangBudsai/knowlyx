@@ -1,190 +1,298 @@
-# /sage-e2e-test — drive the real app end-to-end and prove the flow works
+# /sage-e2e-test — autonomously prove real user journeys
 
-Test a **whole flow the way a user (or load) hits it** — open the real browser,
-walk the journey step by step, assert what actually happens, and report the real
-result. Use it after a feature is built (or a `/sage-flow` doc exists) to prove
-the end-to-end path holds, not just that units pass in isolation.
+Plan, implement, run, debug, and validate reliable end-to-end coverage from
+observed application behavior. Continue through every safe, unblocked step
+without asking for routine confirmation.
 
-**Stack-agnostic.** It detects and uses whatever e2e / browser / load tool the
-repo already has — **Playwright, Cypress, Puppeteer, Selenium, WebdriverIO**
-(browser) or **k6, Locust, Artillery, JMeter** (load) — and never imposes one.
-If the repo has none, it asks which to add before doing anything.
+Prioritize, in order:
 
-> **Invoked by the run checklist.** When `e2e-test` is active (§0 of `AGENTS.md`),
-> Sage runs this itself for flows with a UI or an externally-observable journey.
-> It auto-unchecks when there is nothing end-to-end to drive (a pure library, a
-> non-UI util). It is the **end-to-end** sibling of `/sage-unit-test` (units) and
-> the core `automate-test` step (the existing suite).
+1. Correctness.
+2. Real user behavior.
+3. Reproducibility.
+4. Efficient model and context usage.
+5. Minimal unnecessary application-code changes.
 
----
+Use an interactive browser to discover or disambiguate behavior and an E2E
+runner to encode repeatable regression coverage. Neither replaces the other.
 
-## Model & effort — read the session ceiling first
-
-Same discipline as `/sage`: detect the session **model + effort** and never
-exceed either. Designing which journeys and assertions matter is ceiling-level
-reasoning; driving the tool and reading output is below it. State the ceiling
-once in the intent block.
+This command is provider-, language-, and framework-neutral. Detect the
+capabilities and established tools that actually exist; never pretend a browser,
+subagent, model switch, credential, or service is available.
 
 ---
 
-## Step 1 — Load role (`qa`)
+## Model and work routing
 
-Open `agents/sage/roles/role-qa.md` → adopt (create if missing; same persona as
-`/sage-unit-test`, plus: thinks in user journeys, controls flakiness, asserts on
-what the user sees, not on internals). Output `Role: qa [loaded|created]`.
+The current session model and effort are the default and hard ceiling. Route by
+task shape only when the host can actually route work:
 
-> **Multi-repo:** anchor knowledge to the repo that owns the flow's entry point.
-> State it once in the intent block.
+- **Coordinator / normal reasoning** — plan journeys, understand requirements,
+  explore behavior, handle auth/session flows, coordinate bounded work, and
+  classify ambiguous failures. Keep this work on the current primary model.
+- **Bounded worker / mechanical work** — generate already-specified cases,
+  locators, assertions, repetitive CRUD scenarios, simple fixtures, formatting,
+  deterministic test fixes, and targeted reruns. Delegate only when a lower-tier
+  worker is available and the task has one objective plus clear verification.
+- **Escalation / complex unresolved work** — use the strongest model permitted by
+  the session ceiling only after normal investigation cannot resolve a race,
+  cross-service failure, complex session behavior, or test-versus-app ambiguity.
 
----
+**Optional Codex mapping when those models and delegation are exposed:** Terra
+for coordination, Luna for bounded mechanical work, and Sol for genuinely
+complex unresolved work. This mapping is an optimization, not a requirement.
+Never exceed the session ceiling, switch silently, or block another agent because
+these Codex model names do not exist there.
 
-## Step 2 — Detect the e2e/load stack + the flow (never assume)
-
-1. **Match the repo's own stack — never introduce a foreign-language tool.**
-   First detect the project's language from its manifest (`package.json` → JS/TS,
-   `go.mod` → Go, `pyproject.toml` / `requirements.txt` → Python, `Gemfile` →
-   Ruby, `*.csproj` → .NET, …). The e2e tool **must** belong to that ecosystem —
-   e.g. **Playwright or Cypress** for a JS/TS app; **never** a Python tool
-   (Selenium-py, Locust) in a JS/TS repo just because it exists on the machine.
-   Then look for an **existing** setup and **reuse it as-is** — do not swap in a
-   different tool: `playwright.config.*`, `cypress.config.*`, `wdio.conf.*`, a
-   `k6`/`artillery` script, an `e2e/` or `tests/e2e/` folder, the run script in
-   the manifest. Open 1–2 existing e2e tests and copy their style (selectors,
-   fixtures, base URL, auth, waits).
-2. **Find the flow.** Prefer an existing `agents/sage/flows/<slug>-flow.md` (from
-   `/sage-flow`) or a `docs/<slug>.md` — the step-by-step and edge cases are your
-   test script. Otherwise reconstruct the journey from the routes/pages/endpoints.
-3. **Find how to run the app.** The dev/preview command, the base URL/port, seed
-   data or test accounts, env vars, and any external service that must be mocked
-   or pointed at a sandbox (payment gateway, email, third-party API).
-
-If the repo has **no e2e/load setup at all**, stop and **ask which tool to add,
-proposing the one that fits the detected stack** (e.g. Playwright or Cypress for a
-JS/TS browser app, k6 for load) — never a tool from another language. Adding a
-toolchain is the human's call.
+When delegation is unavailable or would cost more context than it saves, work
+locally. A delegated task receives only the relevant files, verified behavior,
+one objective, and its run criteria—not the whole repository.
 
 ---
 
-## Step 3 — Ask before running (mandatory gate)
+## Step 1 — Load the QA lens and establish the safe envelope
 
-Resolve routine preferences from repo evidence before asking:
+Open `agents/sage/roles/role-qa.md` and adopt it according to `AGENTS.md`. Anchor
+all knowledge and output paths to the repository that owns the flow entry point.
 
-- **Which tool / mode** — reuse the existing stack-matching setup. If none
-  exists, propose the smallest compatible tool; ask only when adding it changes
-  the public/dev contract or dependency policy.
-- **Scope** — happy path only, or happy path + the key edge cases from the flow.
-- **Retest policy** — after the first run, **re-run on failure? how many
-  retries?** and **should this be saved as a repeatable test** (committed spec)
-  or a one-off drive-through this session.
-- **Environment** — which base URL / account / seed, and confirm no real
-  money/email/production side effects (sandbox only).
+Apply the central Sage route and risk policy. A request to create E2E coverage
+authorizes safe local/sandbox exploration, test files, conventional dev-only test
+dependencies, app startup, targeted reruns, and fixture cleanup. It does not
+authorize production mutation, real money/email, destructive data changes,
+credential creation, bypassing authorization, or unrelated application fixes.
 
-Use existing test conventions/defaults for scope and retry policy and record the
-assumption. Ask only for a material environment/access/side-effect decision;
-batch independent questions according to interaction policy.
+Infer reversible choices from repository evidence. Stop only for a genuine
+business/product decision, missing access or credential, destructive/production
+effect requiring approval, matched block rule, failed critical control, or an
+ambiguity that code, tests, logs, traces, and available browser state cannot
+resolve safely.
 
-Then output the intent block and apply the central verdict:
+## Step 2 — Detect the real stack, flow, and capabilities
+
+Inspect before planning:
+
+1. **Established E2E tool** — configs, scripts, dependencies, `e2e/` or
+   `tests/e2e/`, fixtures, reporters, CI jobs, and 1–2 nearby tests. Reuse its
+   runner, language, selectors, auth setup, base URL, and file conventions.
+2. **Application stack** — manifests, routes/pages/endpoints, dev/preview command,
+   services, database, and external dependencies. Do not infer from filenames.
+3. **Flow contract** — prefer `agents/sage/flows/<slug>-flow.md`, product docs,
+   acceptance criteria, and executable behavior. Trace the actual entry and exits.
+4. **State prerequisites** — seed/factory, test account and roles, auth/session,
+   required env vars, sandbox providers, data isolation, and cleanup/reset path.
+5. **Available observation tools** — interactive in-app browser, signed-in Chrome
+   control, screenshots, accessibility tree, console/network inspection, runner
+   traces, video, and application logs. Use only capabilities actually exposed.
+
+Prefer the repository's existing E2E framework. If none exists and the user
+asked to create E2E coverage, choose the smallest ecosystem-compatible standard
+without a ceremonial question: prefer Playwright for a browser application when
+it fits the stack; otherwise choose the ecosystem's established E2E/load tool.
+Ask only when project dependency policy, runtime ownership, or competing stacks
+make that choice material.
+
+## Step 3 — Plan high-value journeys first
+
+Choose the smallest set of journeys that would materially protect users:
+
+- critical happy paths;
+- meaningful validation and failure exits;
+- authentication, authorization, ownership, and session boundaries;
+- state/data creation, update, deletion, and cleanup where relevant;
+- redirects, refresh/back, duplicate action, timeout, loading, and error recovery;
+- high-risk money, irreversible state, external side effects, and concurrency;
+- load scenarios only when latency/throughput is part of the requested behavior.
+
+Do not create many low-value “page renders” tests. Rank journeys by user impact,
+likelihood, and risk controls. A happy-path pass is not evidence for a permission,
+retry, rollback, or partial-failure behavior it never exercised.
+
+Output the intent block and continue on `proceed|warn`:
 
 ```text
-Repo    : <repo-root>
-Role    : qa — e2e for <flow>
-Model   : <model> @ effort:<effort>  ← session ceiling
-Tool    : <playwright | cypress | k6 | …> (detected/agreed)
-Flow    : <source: agents/sage/flows/<slug>-flow.md | reconstructed>
-Journey : <entry → steps → exit being driven>
-Retest  : <retries on fail: N> · <save as spec | one-off>
-Env     : <base URL · account/seed · mocked externals>
-Risk    : LOW | MEDIUM | HIGH · confidence:<low|medium|high> — <why>
-Drivers : <risk driver exercised by this journey>
-Evidence: <required control → assertion/artifact, or "ordinary journey coverage">
-Decision: proceed | warn | ask | reject
+Repo       : <repo-root>
+Role       : qa — E2E for <flow>
+Model      : <current model @ effort; optional routing available>
+Tool       : <existing runner or selected default>
+Behavior   : <flow source + real-app observation source>
+Journeys   : <ranked happy/failure/auth/high-risk paths>
+State      : <base URL · seed/account · cleanup · sandbox externals>
+Browser    : <available capability and when it will be used | unavailable>
+Risk       : LOW | MEDIUM | HIGH · confidence:<low|medium|high>
+Drivers    : <affected asset → failure mode>
+Evidence   : <driver → planned assertion/artifact>
+Decision   : proceed | warn | ask | reject
 ```
 
-`proceed|warn` continues directly in the safe local/sandbox environment.
-`ask|reject` returns before browser/load execution.
+## Step 4 — Explore real behavior when possible
 
----
+Use the real application before encoding an uncertain or important flow whenever
+a safe interactive browser is available:
 
-## Step 4 — Drive the flow and assert
+- perform login/logout, navigation, forms, dialogs, CRUD, redirects, validation,
+  loading/error states, permissions, and session transitions that matter;
+- observe visible UI, URL changes, accessibility state, relevant console errors,
+  relevant network requests/responses, and resulting application state;
+- use a sandbox/test account and isolated data;
+- record behavior that contradicts source/docs instead of choosing the expected
+  answer silently.
 
-- **Start the app** (or point at the agreed URL). Confirm it's up before driving.
-- **Walk the journey step by step**, mirroring the flow doc: each step performs
-  the real user action (navigate, fill, click, wait) and **asserts the observable
-  outcome** — the URL, the visible text/state, the network response, the DB/side
-  effect where checkable.
-- **Assert real values**, not "it rendered" — the exact success screen, the
-  exact error message on the unhappy path, the exact status the flow should reach.
-- **Cover the edge cases** you agreed to (refresh mid-flow, back button,
-  double-submit, expired/timeout, permission mismatch) — one assertion per exit.
-- **Control non-determinism** — stable selectors (role/test-id, not brittle CSS),
-  explicit waits (not sleeps), mocked externals, a clean seed per run.
-- For **load** mode: define the scenario (VUs, ramp, duration), the thresholds
-  (p95 latency, error rate), and assert against them.
+Do not repeatedly inspect the browser when runner output, logs, screenshots, or
+traces already explain the behavior. If no interactive browser is available,
+ground expectations in executable tests, source contracts, app responses, and
+flow docs, then disclose the observation gap.
 
----
+## Step 5 — Record expected behavior before each test
 
-## Step 5 — Run it and prove it (mandatory)
+For every scenario, write a compact behavior record in the plan, test name, or
+test structure:
 
-1. Run using the repo's real command; **capture the actual result** — pass/fail
-   per step, screenshots/trace on failure, or the load summary (p95, error rate).
-2. **Report the real output** — never "the flow should work". Paste the run
-   summary.
-3. On failure: decide whether the **test** is wrong (fix the selector/wait) or it
-   found a **real defect** in the flow (report it clearly — never weaken the
-   assertion to go green). Apply the agreed retest/retry policy; if it still
-   fails, stop and report.
-4. If asked to save it, commit the spec in the repo's e2e location using its
-   conventions; if one-off, say so and leave nothing behind.
-5. Map every parent-run required control this E2E owns to a concrete assertion,
-   trace, screenshot, response, or load threshold. Do not use a happy-path pass
-   as evidence for a retry, permission, rollback, or partial-failure control that
-   the journey never exercised.
+```text
+Given   : <starting user/session/data state>
+When    : <real user actions>
+Then UI : <visible result and accessibility state>
+Then URL: <navigation/redirect, if any>
+Then data: <observable state change and cleanup>
+API     : <relevant request/response/side effect, only when needed>
+```
 
----
+Use observed behavior as the source of truth unless it conflicts with an
+approved requirement. A conflict is a product/application finding, not a reason
+to encode whichever result is easiest.
 
-## Step 6 — Capture knowledge (mandatory)
+## Step 6 — Implement deterministic E2E coverage
 
-- **A — New** e2e convention → `agents/sage/<domain>/decisions/<slug>.md`
-  (pattern + why + Do/Avoid; `enforcement: advise`, `source: ai`,
-  `status: proposed`). E.g. "Drive the checkout e2e against the payment sandbox,
-  assert on the returned order status, never the gateway redirect query."
-- **B — Updated** an existing decision → update in place.
-- **C — None** → `No new knowledge — <file> covers this`.
+- Reflect real user behavior rather than calling implementation internals.
+- Prefer accessible locators: role, label, name, and stable visible text. Use a
+  project-standard test ID when semantics are insufficient. Avoid brittle CSS or
+  XPath selectors unless no stable public surface exists.
+- Never use arbitrary sleeps. Wait for meaningful UI, URL, response, event, or
+  state transitions.
+- Keep tests independently runnable where practical. Give each test isolated
+  setup and deterministic cleanup; control clock/randomness only at a real seam.
+- Exercise the real application stack where practical. Do not overuse mocks in a
+  true E2E test; mock only unsafe/unavailable external boundaries or scenarios
+  that cannot be produced deterministically.
+- Assert exact intended outcomes, including meaningful error text/status and
+  data/side effects when those are part of the behavior.
+- Make the smallest application change necessary for a stable public testing
+  surface. Do not alter application behavior merely to make a test pass.
+- For load tests, define VUs/ramp/duration and measurable latency/error thresholds.
 
----
+## Step 7 — Run continuously
 
-## Step 7 — Summary (mandatory — a response without this is incomplete)
+After implementing each scenario:
 
-Output as plain markdown (no code fence):
+1. Run the narrowest spec/scenario.
+2. Inspect the actual output and artifacts.
+3. Classify and resolve a straightforward failure.
+4. Rerun until the scenario is deterministic.
+5. Run the broader relevant E2E suite after individual scenarios stabilize.
+
+Use the repository's configured retry policy. Do not add retries to conceal
+flakiness. Repeat critical new coverage enough to catch immediate nondeterminism
+when runtime cost is reasonable, and report the number of successful runs.
+
+## Step 8 — Classify every failure before fixing
+
+Classify from evidence, never convenience:
+
+### A. Test issue
+
+Wrong locator/assertion, stale expected behavior, bad fixture/data, or an
+incorrect wait. Fix the test, rerun the target, and confirm the assertion still
+fails when the intended application behavior is broken.
+
+### B. Application issue
+
+API failure, broken validation, unexpected redirect, inconsistent state,
+permission/session bug, JavaScript exception, backend error, or violated product
+contract. Do not weaken the test. Report the defect clearly; modify application
+code only when the user's request also authorizes the fix, then run the relevant
+unit/integration checks as well as E2E.
+
+### C. Environment/infrastructure issue
+
+Unavailable service/database, missing safe credential, incorrect environment,
+port conflict, corrupt seed, or unstable external dependency. Repair reversible
+local test infrastructure when in scope; otherwise report the exact blocker and
+the evidence it prevents.
+
+Increasing a timeout, adding retries, catching an error, removing validation, or
+skipping a branch is never a classification or a valid fix by itself.
+
+## Step 9 — Debug with the cheapest sufficient evidence
+
+Use concise runner output, the first relevant stack trace, screenshot/trace,
+application log, console error, and network request before loading wider context.
+
+- Obvious deterministic test failure → fix locally or route to a bounded worker.
+- Ambiguous test-versus-application failure → coordinator inspects the relevant
+  flow and artifacts.
+- Runner evidence insufficient and browser available → reproduce only the failing
+  step in the real browser; inspect relevant UI/accessibility, console, network,
+  redirects, and state.
+- Race, complex auth/session, or cross-service failure still unresolved → use the
+  strongest model allowed by the session ceiling and narrow the evidence passed.
+
+Summarize discoveries before any handoff. Never send the whole repository, huge
+logs, unrelated files, or full browser state when a small slice is sufficient.
+
+## Step 10 — Completion criteria
+
+A flow is complete only when:
+
+- expected behavior was established from real evidence;
+- repeatable E2E coverage exists in the repository's convention;
+- targeted tests pass consistently and the broader relevant suite passes;
+- assertions genuinely validate the intended UI/navigation/data/API outcome;
+- no meaningful browser, console, network, backend, or runner error was ignored;
+- no unnecessary fragile wait, selector, retry, mock, or application change remains;
+- test data is isolated and cleaned up or reset deterministically;
+- every parent-run risk control owned by E2E maps to an exact assertion/artifact;
+- skipped or blocked scenarios and remaining risks are explicit.
+
+Continue autonomously until these criteria are met or a material gate from Step 1
+is reached. Do not stop at planning, first implementation, or first green run.
+
+## Step 11 — Capture knowledge
+
+Capture only a durable project-specific E2E convention or non-obvious seam under
+`agents/sage/<domain>/decisions/` as `status: proposed`. Do not copy this generic
+workflow into project knowledge.
+
+## Step 12 — Summary
+
+Output as plain Markdown:
 
 ```markdown
-── Sage E2E Test ─────────────────────────────────
-**Role** · qa — e2e for <flow>
-**Model** · <model> @ effort:<effort>
-**Tool** · <playwright | k6 | …> | **Initial risk** · <LOW|MEDIUM|HIGH>
+── Sage E2E Test ──────────────────────────────────
+**Role** · qa — E2E for <flow>
+**Model** · <coordinator and any actual bounded/escalated routing>
+**Tool** · <runner> | **Initial risk** · <LOW|MEDIUM|HIGH>
 
-**Journey driven**
-The steps walked, entry → exit, and which edge cases were covered.
+**Flows covered**
+- <journey and meaningful exits>
+
+**Tests changed**
+- `<path>` — <scenarios>
 
 **Ran**
-The exact command and the real result (e.g. `playwright test checkout — 9 passed,
-1 failed`; or k6 `p95=380ms, errors=0.2%`). Attach failure trace/screenshot ref.
+<exact targeted/broader commands, pass counts, and repeated-run evidence>
 
-**Result**
-Pass / fail per exit, and — on failure — whether it was a test bug or a real
-flow defect, and what you did (retry policy applied, or stopped and reported).
+**Application bugs**
+- <classification + evidence, or "none">
+
+**Skipped / blocked**
+- <scenario + exact blocker, or "none">
 
 **Control evidence**
-Map each parent-run risk driver to its exact assertion/artifact, or state the gap.
+- <driver → assertion/artifact, or gap>
 
-**Residual risk** · <LOW|MEDIUM|HIGH> — <what the E2E evidence reduced or left open>
-
-**Saved** · [committed spec `<path>` | one-off, nothing left behind]
-
-**Knowledge** · [new | updated | none] `<path>` — <pattern title>
-──────────────────────────────────────────────────
+**Residual risk** · <LOW|MEDIUM|HIGH> — <what remains>
+**Knowledge** · [new | updated | none] `<path>` — <pattern or reason>
+────────────────────────────────────────────────────
 ```
 
 When invoked by an active `/sage` run, return the E2E evidence to the parent and
-continue with remaining validation/docs work. A standalone invocation prints
-the summary and returns because no parent run exists.
+continue with remaining work. A standalone invocation returns only after the
+flow is complete or materially gated.

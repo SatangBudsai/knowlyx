@@ -4,6 +4,24 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-08-20
+
+### Changed
+
+- **`/sage-e2e-test` now owns the full autonomous E2E loop** — it prioritizes
+  high-value journeys, explores real UI behavior when browser control exists,
+  records expectations before implementation, runs targeted tests continuously,
+  classifies failures as test/application/environment issues, and completes only
+  with repeatable evidence and explicit residual risk.
+- Model routing is provider-neutral with an optional Codex mapping: Terra for
+  coordination, Luna for bounded mechanical work, and Sol for unresolved complex
+  work when available within the session ceiling. Other agents keep the same
+  workflow without requiring Codex model names, subagents, or `@Chrome`.
+- Routine scope, retry, save, and framework choices now resolve from repository
+  evidence instead of forcing an “ask before running” checkpoint. Material
+  production, credential, destructive, side-effect, and business decisions remain
+  gated by the central Sage risk policy.
+
 ## [1.2.0] — 2026-08-19
 
 ### Added

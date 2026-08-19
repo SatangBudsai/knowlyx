@@ -66,7 +66,7 @@ use identical syntax.
 | `/sage-wayfinder`       | Map multi-session fog as durable decision tickets                      |
 | `/sage-flow`            | Turn a feature/journey into an implementation-ready business flow      |
 | `/sage-unit-test`       | Write unit tests that match how this repo already tests                |
-| `/sage-e2e-test`        | Drive the app end-to-end (Playwright/k6/…) and prove the flow          |
+| `/sage-e2e-test`        | Autonomously explore, encode, run, and validate real E2E behavior     |
 | `/sage-security-review` | Review a change for real, exploitable security holes                   |
 | `/sage-docs`            | Turn any document into a plain-Markdown flow doc (`docs/<slug>.md`)    |
 | `/sage-learning`        | Learn this repo's patterns + research best practices for its stack     |

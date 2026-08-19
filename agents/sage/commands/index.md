@@ -13,7 +13,7 @@ practice.
 | `sage-wayfinder.md`       | Map and resolve multi-session fog as durable decision tickets      | route `large-multi-session`        |
 | `sage-flow.md`            | Build + verify an implementation-ready flow → `agents/sage/flows/` | checklist toggle `plan-flow`       |
 | `sage-unit-test.md`       | Write unit tests that match the repo's stack                       | checklist toggle `unit-test`       |
-| `sage-e2e-test.md`        | Drive the app end-to-end (Playwright/k6/…) and prove the flow      | checklist toggle `e2e-test`        |
+| `sage-e2e-test.md`        | Autonomously explore, encode, run, and validate real E2E behavior | explicit specialist command        |
 | `sage-security-review.md` | Review a change for real, exploitable security holes               | checklist toggle `security-review` |
 | `sage-docs.md`            | Create/update a plain-Markdown flow doc → `docs/`                  | core `update-docs`                 |
 | `sage-learning.md`        | Learn this repo's patterns + research best practices for its stack | on demand                          |
