@@ -38,6 +38,17 @@ Load the request's senior lens per `AGENTS.md` §1.1. Read, in order:
 3. `rules.md` and relevant `decisions/*.md`
 4. real source, schema, config, docs, and git facts for the request
 
+**When the human supplies a document** — a PRD, a ticket, an API contract, a
+design file, a meeting transcript, a chat thread — read it in full first, and
+treat every statement in it as a **claim to verify, not a fact**. Check each
+claim against the repo, then grill the three things documents almost always
+leave out: what the document asserts but the code contradicts, what it names
+without defining (fold those terms into `context.md`), and what it never
+mentions at all — the error paths, the empty and expired states, the permission
+boundaries, and the explicit out-of-scope. A document shrinks the interview; it
+never replaces it. Cite the document's own section when a decision comes from it
+so the spec stays traceable.
+
 A question answerable from the environment is research skipped, not a human
 decision. When the human's description conflicts with code/schema, surface both:
 `code currently does X; the requested domain behavior says Y` — then ask which
@@ -149,6 +160,12 @@ The handoff must contain:
 APIs, state, failure paths, security, concurrency, and rollout. It must not ask a
 resolved product question again unless new code/schema evidence contradicts it;
 then it reopens the named decision and cites the evidence.
+
+Route the handoff by what is still undecided. When implementation decisions
+remain — more than one system, a new or changed contract, a non-obvious failure
+or trust boundary — go to `/sage-flow`. When the design follows directly from
+the resolved requirements and only the build remains, go straight to
+`/sage-ticket` and skip the flow doc rather than writing one as ceremony.
 
 When an active parent `/sage` run has
 `interaction.continueAfterHandoff: true`, return `requirements-clear` to the

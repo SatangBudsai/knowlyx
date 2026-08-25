@@ -21,8 +21,9 @@ For code-changing tasks, Steps 1-5 are mandatory. For pure questions, advice, ex
 This repository uses `agents/sage/AGENTS.md` as the opt-in protocol. `/sage`
 offers only `suggest-switch-model` and `plan-flow`. It asks before any model
 downshift and never silently changes model or effort. Unit, E2E, and security
-checks are explicit standalone commands: `/sage-unit-test`, `/sage-e2e-test`,
-and `/sage-security-review`; they are not checklist choices for `/sage`.
+checks are explicit standalone commands: `/sage-ticket`, `/sage-review`,
+`/sage-unit-test`, `/sage-e2e-test`, and `/sage-security-review`; they are not
+checklist choices for `/sage`.
 
 The older five-choice checklist text below is historical reference only and is
 superseded by this contract.
@@ -202,7 +203,7 @@ selected by `/sage`.
 
 1. **suggest-switch-model** — ask the human before using a lower effort/model when the task is safely downshiftable; never switch silently.
 2. **plan-flow** — design and verify the flow before coding (`/sage-flow`)
-3. Specialist checks are invoked explicitly with `/sage-unit-test`, `/sage-e2e-test`, or `/sage-security-review`.
+3. Specialist steps are invoked explicitly with `/sage-ticket`, `/sage-review`, `/sage-unit-test`, `/sage-e2e-test`, or `/sage-security-review`.
 
 Do not add a sixth option. Do not add `None`. Do not add `just answer`. Pure questions never reach this step.
 

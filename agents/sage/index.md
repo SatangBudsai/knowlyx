@@ -14,7 +14,9 @@ agents/sage/
   index.md                  # this file
   commands/<name>.md        # canonical command bodies — the tool adapters point here
   docs-style-template.md    # the /sage-docs + /sage-flow markdown style-guide
+  flows/<slug>-spec.md      # resolved product decisions from /sage-grill
   flows/<slug>-flow.md      # implementation-ready flow docs from /sage-flow
+  flows/<slug>-tickets.md   # ordered implementation tickets from /sage-ticket
   wayfinders/<slug>/        # durable map + decision tickets for multi-session fog
   roles/role-<lens>.md      # compact senior lenses — see AGENTS.md §2
   <domain>/                 # e.g. billing, search, your own domains

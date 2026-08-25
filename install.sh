@@ -311,6 +311,8 @@ Commands now available:
   /sage-grill           resolve single-session fog + glossary/checkpoint decisions
   /sage-wayfinder       map multi-session fog as durable decision tickets
   /sage-flow            design + verify an implementation-ready flow before coding
+  /sage-ticket          cut clear requirements into implementation tickets, then build them
+  /sage-review          review a change for correctness + requirement conformance
   /sage-unit-test       write unit tests that match this repo's stack
   /sage-e2e-test        drive the app end-to-end (Playwright/Cypress/k6/…) and prove the flow
   /sage-security-review review a change for real, exploitable security holes

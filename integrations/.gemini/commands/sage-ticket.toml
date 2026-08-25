@@ -1,0 +1,6 @@
+description = "Cut clear requirements into implementation tickets, then build them"
+prompt = """
+Read and follow @{agents/sage/AGENTS.md}. Then execute the canonical command in
+@{agents/sage/commands/sage-ticket.md} for this task. Do not duplicate or bypass
+the protocol.
+"""

@@ -165,7 +165,11 @@ never drop one without saying why it's N/A.
     computed, secret ownership, **idempotency** points, atomicity/rollback,
     amount/signature verification, race conditions.
 12. **Build checklist** — grouped per system/repo, each item a concrete unit of
-    work, checkbox form.
+    work in checkbox form. Make each item sliceable: give it a stable id, name
+    the system that owns it, list what it depends on, and state the acceptance
+    condition in when → then form plus any required control it must produce
+    evidence for. This is the input `/sage-ticket` cuts implementation tickets
+    from — an item with no acceptance condition cannot become a ticket.
 13. **Open questions** — the decisions still needed before/while building; mark
     any that are already resolved.
 
@@ -213,6 +217,12 @@ When invoked by an active `/sage` run with
 continue into implementation immediately. Completing Flow is a handoff, not a
 terminal condition. When invoked standalone, print the summary and return the
 artifact because no parent run exists.
+
+On `design-clear`, hand the Build checklist to **`/sage-ticket`** when the work
+needs ordered, independently verifiable slices — several systems, more than one
+session, or parallel builders. A small single-session change may go straight to
+implementation; do not cut tickets as ceremony. Either way, the finished change
+ends at `/sage-review`.
 
 ---
 

@@ -139,6 +139,39 @@ Before that checklist, Sage routes the request by how much decision fog remains:
 Grill and Wayfinder are always-on guards, not checklist choices. Turning
 `plan-flow` off never authorizes coding past unresolved product decisions.
 
+### The full lifecycle — idea to shipped change
+
+When you want to drive the whole thing by hand rather than letting `/sage` route
+it, this is the spine:
+
+```text
+/sage-grill  ──▶  /sage-flow  ──▶  /sage-ticket  ──▶  /sage-review
+ clear the       design it        slice it and       check it against
+ requirements    (skippable)      build it           what it promised
+       │
+       └─ too foggy for one session? ──▶ /sage-wayfinder ──▶ back to /sage-flow
+```
+
+| Step | Command        | Ends when                                                          |
+| ---- | -------------- | ------------------------------------------------------------------ |
+| 1    | `/sage-grill`  | `requirements-clear` — no open decision changes the implementation  |
+| 2    | `/sage-flow`   | `design-clear` — systems, APIs, state, failure paths, controls set |
+| 3    | `/sage-ticket` | every ticket `done` with its validation output pasted               |
+| 4    | `/sage-review` | findings reported, or `Findings · none` with evidence               |
+
+**Step 2 is skippable.** When the design follows directly from the requirements,
+Grill hands straight to `/sage-ticket`. Run `/sage-flow` when the work crosses
+systems or repos, changes a public contract, or has a non-obvious failure or
+trust boundary — not as ceremony.
+
+**Step 3 is skippable too** for a small single-session change: implement it with
+`/sage` and go straight to review. Cut tickets when the work needs ordering,
+spans sessions, or several people build in parallel.
+
+With `interaction.runPolicy: "until-gate"` (the default) each step continues into
+the next on its own — you only get interrupted at a real decision, a HIGH-risk
+gate, missing access, or failed evidence.
+
 Sage performs a pre-action clarification pass before implementation, but that
 does **not** mean it asks a question every time. It looks up repository facts
 itself and asks only for missing human decisions that materially change the
@@ -150,6 +183,8 @@ HIGH/destructive risk gates still apply.
 | Type       | Runs                    | For                                                   |
 | ---------- | ----------------------- | ----------------------------------------------------- |
 | run option | `/sage-flow`            | design the flow before coding when `plan-flow` is on |
+| specialist | `/sage-ticket`          | cut clear requirements into build tickets, then build them |
+| specialist | `/sage-review`          | review the finished change for correctness + spec fit |
 | specialist | `/sage-unit-test`       | write unit tests for a target                         |
 | specialist | `/sage-e2e-test`        | autonomously explore and prove real E2E behavior      |
 | specialist | `/sage-security-review` | check sensitive changes for exploitable holes         |
@@ -234,6 +269,33 @@ capability, interaction config v3, continuation, and stop conditions.
 It owns system/API/state/error/security decisions. It does not coordinate
 multi-session fog and does not re-ask product decisions resolved by Grill or
 Wayfinder unless new code/schema evidence contradicts them.
+
+**`/sage-ticket`** — cut clear requirements into build work, then build it
+
+It turns a `requirements-clear` or `design-clear` handoff into ordered
+implementation tickets in `agents/sage/flows/<slug>-tickets.md` — each one a
+single verifiable outcome sized for one session, with its dependencies,
+acceptance criteria in when → then form, the required controls it must produce
+evidence for, and the exact command that proves it. Then it works the frontier:
+claim, run `/sage` scoped to that ticket, validate with real output, mark done,
+move to the next. It refuses foggy input — a ticket you cannot write acceptance
+criteria for is an open decision, so it routes back to Grill or Wayfinder.
+
+These are **implementation** tickets. Wayfinder's are **decision** tickets. One
+backend each, never mirrored.
+
+**`/sage-review`** — review the finished change before it ships
+
+It resolves the target (named paths → branch diff → working tree), then reviews
+against a real standard: the tickets' acceptance criteria, the flow, the spec,
+and matched `rules.md` / `decisions/`. It covers conformance, correctness, edge
+cases, contracts, state and data lifecycle, promised-but-missing controls, reuse,
+and simplicity — then tries to **refute** each finding before reporting it, so
+what survives is marked CONFIRMED or PLAUSIBLE and style opinions are dropped.
+
+It is read-only. Findings go back to `/sage` to fix, security findings to
+`/sage-security-review`, and genuine product questions to `/sage-grill`.
+`Findings · none` is a valid result.
 
 **`/sage`** — run the full cognition pipeline before any code change
 

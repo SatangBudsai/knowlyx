@@ -6,8 +6,10 @@ sage-flow
 sage-grill
 sage-learning
 sage-refactoring-code
+sage-review
 sage-security-review
 sage-setting
+sage-ticket
 sage-unit-test
 sage-update
 sage-wayfinder

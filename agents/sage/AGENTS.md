@@ -140,8 +140,19 @@ never weaken the risk gates in §1.4.
 Recommend `plan-flow` when the implementation needs end-to-end design decisions.
 Multi-file size, an ordinary bug, or a dependency change alone is not enough.
 
-Run `/sage-unit-test`, `/sage-e2e-test`, or `/sage-security-review` explicitly
-when those specialist controls are wanted; they are never selected by `/sage`.
+Run `/sage-ticket`, `/sage-review`, `/sage-unit-test`, `/sage-e2e-test`, or
+`/sage-security-review` explicitly when those specialist steps are wanted; they
+are never selected by `/sage`.
+
+**`/sage-ticket`** cuts clear requirements into ordered implementation tickets in
+`agents/sage/flows/<slug>-tickets.md` and then builds them. It accepts only
+`requirements-clear` or `design-clear` input; it is not a place to park fog, and
+its build tickets never mirror Wayfinder's decision tickets.
+
+**`/sage-review`** reviews a finished change for correctness and requirement
+conformance against the tickets, flow, spec, and matched rules. It is read-only:
+it reports findings and hands fixes back to `/sage`, security findings to
+`/sage-security-review`, and genuine product questions to `/sage-grill`.
 
 `/sage` has no specialist checklist picker. It may ask one focused question about
 `suggest-switch-model` when a lower model/effort is materially suitable; otherwise
@@ -176,7 +187,7 @@ full interaction rules live in `agents/sage/commands/sage.md`.
 Open the run by echoing the checklist on one line:
 
 ```text
-Checklist · mode:auto · ✓ suggest-switch-model (ask before downshift) · ✓ plan-flow → /sage-flow · specialist checks: explicit `/sage-unit-test`, `/sage-e2e-test`, `/sage-security-review` · core: automate-test + update-docs → /sage-docs
+Checklist · mode:auto · ✓ suggest-switch-model (ask before downshift) · ✓ plan-flow → /sage-flow · specialist checks: explicit `/sage-ticket`, `/sage-review`, `/sage-unit-test`, `/sage-e2e-test`, `/sage-security-review` · core: automate-test + update-docs → /sage-docs
 ```
 
 **`plan-flow` runs `/sage-flow`, which is two tasks in this order — never just

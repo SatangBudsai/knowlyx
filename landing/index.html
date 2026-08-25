@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#050505" />
-    <meta name="sage-version" content="v1.3.0" />
+    <meta name="sage-version" content="v1.4.0" />
     <title>Sage - Make AI agents think before they code</title>
     <meta
       name="description"
@@ -1310,8 +1310,8 @@
           <span>Sage</span>
           <span
             class="version-badge"
-            aria-label="Current Sage version v1.3.0"
-            >v1.3.0</span
+            aria-label="Current Sage version v1.4.0"
+            >v1.4.0</span
           >
         </a>
         <div class="nav-right">
@@ -1817,8 +1817,9 @@ irm https://cdn.jsdelivr.net/gh/qorstack/sage@latest/install.ps1 | iex</pre
                   also shows a short checklist. Auto mode selects the recommended
                   set and continues; ask mode uses the best picker the host
                   exposes. Then it runs the right specialist itself:
-                  <code>/sage-flow</code>,
-                  <code>/sage-unit-test</code>, <code>/sage-e2e-test</code>,
+                  <code>/sage-flow</code>, <code>/sage-ticket</code>,
+                  <code>/sage-review</code>, <code>/sage-unit-test</code>,
+                  <code>/sage-e2e-test</code>,
                   <code>/sage-security-review</code>. You mostly just type
                   <code>/sage</code>.
                 </p>
@@ -1863,9 +1864,11 @@ irm https://cdn.jsdelivr.net/gh/qorstack/sage@latest/install.ps1 | iex</pre
               Auto mode continues without prompting; ask mode prefers native
               checkboxes, then structured or compact fallbacks. Sage runs the
               right specialist itself: design the flow
-              (<code>/sage-flow</code>), write tests
+              (<code>/sage-flow</code>), slice and build it
+              (<code>/sage-ticket</code>), write tests
               (<code>/sage-unit-test</code>, <code>/sage-e2e-test</code>), review
-              security (<code>/sage-security-review</code>), refresh docs
+              the change (<code>/sage-review</code>) and its security
+              (<code>/sage-security-review</code>), refresh docs
               (<code>/sage-docs</code>), and continues across handoffs until a
               material gate or completion.
             </p>
@@ -2069,8 +2072,8 @@ Reuse payments/idempotency.py; never roll your own.</pre
           <span>Sage - cognitive enforcement for AI software development</span>
           <span
             class="version-badge"
-            aria-label="Current Sage version v1.3.0"
-            >v1.3.0</span
+            aria-label="Current Sage version v1.4.0"
+            >v1.4.0</span
           >
         </div>
         <div class="foot-links">

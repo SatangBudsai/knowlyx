@@ -4,6 +4,41 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-08-25
+
+### Added
+
+- **`/sage-ticket`** — cuts `requirements-clear` / `design-clear` work into
+  ordered **implementation** tickets in `agents/sage/flows/<slug>-tickets.md`,
+  each a single verifiable outcome sized for one session with dependencies,
+  when → then acceptance criteria, its owed risk controls, and the exact
+  validation command. It then works the frontier, claiming and building one
+  ticket at a time. It refuses foggy input and routes it back to `/sage-grill`
+  or `/sage-wayfinder`. Wayfinder keeps sole ownership of **decision** tickets;
+  the two backends are never mirrored.
+- **`/sage-review`** — the correctness and requirement-conformance review Sage
+  was missing. It resolves the target (named paths → branch diff → working
+  tree), reviews against the tickets, flow, spec, and matched rules, covers
+  conformance, correctness, edge cases, contracts, state lifecycle, owed
+  controls, reuse, and simplicity, then adversarially refutes each finding
+  before reporting it as CONFIRMED or PLAUSIBLE. Read-only: fixes go back
+  through `/sage`, security findings to `/sage-security-review`, product
+  questions to `/sage-grill`.
+- Thin adapters for both commands across Claude Code, Codex, Cursor, GitHub
+  Copilot, Gemini CLI, Windsurf, and Cline.
+
+### Changed
+
+- `/sage-grill` now handles a human-supplied document (PRD, ticket, API
+  contract, transcript) explicitly: read it in full, treat every statement as a
+  claim to verify against the repo, and grill what it contradicts, leaves
+  undefined, or never mentions. It also routes its handoff by what remains
+  undecided — `/sage-flow` when implementation decisions are open, straight to
+  `/sage-ticket` when only the build remains.
+- `/sage-flow`'s Build checklist items now carry a stable id, owning system,
+  dependencies, and a when → then acceptance condition, so `/sage-ticket` has a
+  sliceable contract to consume instead of bare checkboxes.
+
 ## [1.3.0] — 2026-08-20
 
 ### Changed
