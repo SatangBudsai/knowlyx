@@ -33,7 +33,7 @@ unknown.
 Follow the same discipline as `/sage`: detect the current session **model +
 effort** and never exceed either. **Flow design is never downgraded** — the whole
 command (build **and** verify) runs at the **full session model + effort**, never
-a lower tier. It is the highest-reasoning step there is; `auto-switch-model` may
+a lower tier. It is the highest-reasoning step there is; `suggest-switch-model` may
 lower other trivial sub-tasks, never this one. The only cap is the session
 ceiling itself — never raise above it. State the ceiling once in the intent block.
 

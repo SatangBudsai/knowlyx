@@ -123,10 +123,11 @@ move, and change without speculative abstraction. It covers components,
 functions, utilities, modules, and database schemas.
 
 **You mostly just use `/sage`.** Before each change it shows a short
-**checklist**. In `mode:auto`, Sage chooses the recommended set and continues
-without asking. In `mode:ask`, it uses a native multi-select picker when the host
-provides one, otherwise a one-click Recommended/Defaults/Customize choice or a
-compact `+/-` fallback — no provider name is assumed to support a widget.
+**two-option checklist** (`suggest-switch-model`, `plan-flow`). In `mode:auto`,
+Sage chooses the recommended set and continues without asking. In `mode:ask`, it
+uses a native multi-select picker when the host provides one, otherwise a
+one-click Recommended/Defaults/Customize choice or a compact `+/-` fallback —
+no provider name is assumed to support a widget.
 
 Before that checklist, Sage routes the request by how much decision fog remains:
 
@@ -191,8 +192,11 @@ HIGH/destructive risk gates still apply.
 | core       | `/sage-docs`            | refresh human-facing docs when a flow changed         |
 
 `/sage` decides the `plan-flow` run option according to mode and saved settings.
-Unit, E2E, and security specialists are invoked explicitly; disabling or not
-invoking one never removes a driver-specific safety control. Every command's
+Unit, E2E, and security specialists are invoked explicitly. `/sage` never
+creates, modifies, or plans test files; use `/sage-unit-test`, `/sage-e2e-test`,
+or a direct request when you want tests authored. It may still run existing
+tests as validation. Not invoking a specialist never removes a driver-specific
+safety control; missing evidence is reported as a gap. Every command's
 full body lives once in `agents/sage/commands/`; per-tool files only point at it.
 
 The version 3 local config also separates checklist selection from interaction:

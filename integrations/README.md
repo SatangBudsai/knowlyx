@@ -75,7 +75,9 @@ use identical syntax.
 | `/sage-setting`         | View/change how `/sage` runs (mode: auto/ask, default steps)           |
 
 `/sage` is the one you use most — its §0 route guard sends fog to Grill or
-Wayfinder, then its checklist decides which build/validation specialists apply.
+Wayfinder, then its two-option checklist controls model suggestions and flow
+planning. Specialists, including both test-authoring commands, run only when the
+human explicitly invokes or requests them.
 
 > Don't see your agent? Most modern agents support either `AGENTS.md` or a
 > rules/instructions file — point it at `AGENTS.md` the same way.

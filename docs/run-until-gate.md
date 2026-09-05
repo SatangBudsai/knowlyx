@@ -49,7 +49,7 @@ continuation แต่อนุมัติ HIGH/destructive/HITL แทน Huma
    +-- Flow design-clear ----------+
    |
    +-- material gate --> คืน control ให้ Human
-   `-- no gate ------> implementation --> tests --> docs --> complete
+   `-- no gate ------> implementation --> validation --> docs --> complete
 ```
 
 **หัวใจ:** Provider name ไม่ได้พิสูจน์ picker capability และการจบ child command
@@ -58,16 +58,18 @@ check ไม่ใช่ข้อบังคับว่าต้องถา�
 
 ## 3. Checklist selection
 
-Checklist ยังมีห้ารายการเดิมและลำดับล็อก:
+Checklist มีสอง run options และลำดับล็อก:
 
-1. `auto-switch-model`
+1. `suggest-switch-model`
 2. `plan-flow`
-3. `unit-test`
-4. `e2e-test`
-5. `security-review`
 
-ทุก host ต้องแสดง recommendation + reason ของทั้งห้ารายการก่อน selection
+ทุก host ต้องแสดง recommendation + reason ของทั้งสองรายการก่อน selection
 แต่รูปแบบ input เปลี่ยนตาม capability จริง
+
+`unit-test`, `e2e-test` และ `security-review` เป็น specialist command ที่ Human
+ต้องเรียกเอง `/sage` จะไม่ recommend หรือ invoke อัตโนมัติ โดยเฉพาะการสร้างหรือ
+แก้ test file ต้องมี `/sage-unit-test`, `/sage-e2e-test` หรือคำสั่งตรงจาก Human
+ก่อนเสมอ ส่วนการรัน existing tests เป็น validation ยังทำได้
 
 ### Native multi-select
 
@@ -91,9 +93,9 @@ Claude Code ที่เปิด capability นี้จึงเลือก�
 
 - `recommended`
 - `defaults`
-- `-e2e +security`
+- `-plan-flow`
 
-Numeric reply เช่น `1,3,5` ยังอ่านได้เพื่อ backward compatibility แต่ไม่ใช่
+Numeric reply เช่น `1` ยังอ่านได้เพื่อ backward compatibility แต่ไม่ใช่
 primary UX
 
 ### `mode:auto`
@@ -138,11 +140,8 @@ Local claims ยังไม่ atomic ทุก ticket จึงต้อง re
   "version": 3,
   "mode": "auto",
   "checklist": {
-    "auto-switch-model": true,
-    "plan-flow": true,
-    "unit-test": true,
-    "e2e-test": false,
-    "security-review": false
+    "suggest-switch-model": true,
+    "plan-flow": true
   },
   "interaction": {
     "runPolicy": "until-gate",

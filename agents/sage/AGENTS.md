@@ -90,13 +90,13 @@ unavailable.
 **Use the best picker the current environment actually exposes.** Detect
 callable capabilities per session; never infer them from provider names:
 
-1. Native multi-select available → use a real checkbox picker with the five
-   locked choices in order.
-2. Structured single-select only → show all five recommendations, then offer
+1. Native multi-select available → use a real checkbox picker with the two
+   locked run options in order.
+2. Structured single-select only → show both recommendations, then offer
    `Run recommended` (recommended), `Use saved defaults`, or `Customize`.
    `Customize` asks on/off toggles in batches the tool supports.
 3. No structured input → accept `recommended`, `defaults`, or only exceptions
-   such as `-e2e +security`. A numbered reply remains a legacy fallback, never
+   such as `-plan-flow`. A numbered reply remains a legacy fallback, never
    the primary interaction.
 
 `mode:auto` never opens any of these pickers. A Markdown file cannot manufacture
@@ -143,6 +143,16 @@ Multi-file size, an ordinary bug, or a dependency change alone is not enough.
 Run `/sage-ticket`, `/sage-review`, `/sage-unit-test`, `/sage-e2e-test`, or
 `/sage-security-review` explicitly when those specialist steps are wanted; they
 are never selected by `/sage`.
+
+**Test authoring is opt-in.** `/sage` and every non-test specialist must not
+create, modify, or plan test files. New unit tests are written only when the
+human explicitly invokes `/sage-unit-test` (or directly asks to add unit tests),
+and new E2E tests only when the human explicitly invokes `/sage-e2e-test` (or
+directly asks to add E2E tests). Do not ask about tests ceremonially on every
+run—the explicit command/request is the opt-in. Existing tests may still be run
+as validation. If a required control would need a new test, report that evidence
+gap and name the appropriate explicit test command instead of authoring it
+inside `/sage`.
 
 **`/sage-ticket`** cuts clear requirements into ordered implementation tickets in
 `agents/sage/flows/<slug>-tickets.md` and then builds them. It accepts only
@@ -360,7 +370,7 @@ Do these in order. Do not skip. Do not assume you already know the answer.
    | dependency / supply chain | official changelog/advisory · lockfile diff · compatibility/build tests |
    | validation gap / important unknown | expose the missing fact · keep or raise risk · ask before risky completion |
 
-   A specialist checklist command runs only when applicable — HIGH migration
+   A specialist command runs only when explicitly requested — HIGH migration
    risk does not automatically imply `security-review` — but disabling a
    specialist never removes a required core control. If a new driver or wider
    target appears mid-run, stop the affected phase, reassess, add controls, and
@@ -389,7 +399,7 @@ Do these in order. Do not skip. Do not assume you already know the answer.
      cannot perform.
    - **Never downgrade flow design.** `plan-flow` / `/sage-flow` is the
      highest-reasoning step there is — it always runs at the **full session model
-     - effort** (the ceiling), never lowered. `auto-switch-model` may drop other
+     - effort** (the ceiling), never lowered. `suggest-switch-model` may drop other
        trivial sub-tasks below the ceiling, but the flow build + verify is never one
        of them. (It still may not exceed the session ceiling.)
    - Execute parallel phases in a single response (all tool calls together).
@@ -434,11 +444,14 @@ If verdict is `ask` or `reject`, **do not change files** until the human respond
 ### After you write code (mandatory — all four steps, every run)
 
 1. **Verify it runs and close the controls (`automate-test`, core — never skipped
-   by choice).** Run the repo's real test / build / lint plus every applicable
+   by choice).** Run the repo's existing test / build / lint commands plus every
+   applicable
    required control declared before implementation. Report the **actual** command
    and output, not "looks correct" or "should pass". Red tests are reported as
    red, not hidden. A control that cannot run must state the missing evidence and
-   consequence; it cannot silently count as passed. Skip the ordinary suite only
+   consequence; it cannot silently count as passed. This validation step never
+   creates or modifies test files; test authoring remains explicit-only. Skip
+   the ordinary suite only
    when there is genuinely nothing runnable (pure prose / docs), and say so.
 2. **Refresh the docs (`update-docs`, core).** If the change touches a documented
    flow, run `/sage-docs` to update it so the doc never drifts from the code.

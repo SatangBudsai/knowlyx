@@ -9,10 +9,9 @@ findings** over a long list of theoretical ones.
 the code does (web, API, data, auth, payments, infra), on any language or
 framework. It reads the real code — it never guesses from names.
 
-> **Invoked by the run checklist.** When `security-review` is active (§0 of
-> `AGENTS.md`), Sage runs this itself for sensitive changes — auth, payment, PII,
-> secrets, file upload, deserialization, anything crossing a trust boundary. It
-> auto-unchecks when the change touches nothing sensitive (and says so).
+> **Explicit specialist command.** Run this only when the human invokes
+> `/sage-security-review` or directly asks for a security review. Core risk
+> controls in `AGENTS.md` still apply without invoking this specialist.
 
 ---
 

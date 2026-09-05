@@ -19,6 +19,10 @@ This command is provider-, language-, and framework-neutral. Detect the
 capabilities and established tools that actually exist; never pretend a browser,
 subagent, model switch, credential, or service is available.
 
+> **Explicit opt-in only.** Run this command only when the human invokes
+> `/sage-e2e-test` or directly asks to add E2E tests. `/sage` never selects,
+> recommends, or invokes it automatically.
+
 ---
 
 ## Model and work routing

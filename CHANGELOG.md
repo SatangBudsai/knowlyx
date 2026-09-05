@@ -4,6 +4,15 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-09-05
+
+### Changed
+
+- Test authoring is now explicit opt-in. `/sage` no longer recommends, selects,
+  plans, or invokes unit/E2E test creation; new tests are written only through
+  `/sage-unit-test`, `/sage-e2e-test`, or an equivalent direct request. Running
+  the repository's existing tests remains part of validation.
+
 ## [1.4.0] — 2026-08-25
 
 ### Added

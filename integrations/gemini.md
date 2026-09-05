@@ -28,5 +28,6 @@ Don't rely on a copy here; the canonical file is authoritative.
 | `sage-update`          | `agents/sage/commands/sage-update.md`          | update Sage to the latest version         |
 | `sage-setting`         | `agents/sage/commands/sage-setting.md`         | change how /sage runs (mode + steps)      |
 
-The run checklist in `AGENTS.md` §0 is the dispatcher: `/sage` decides which
-commands apply, asks you to confirm, then runs the confirmed ones.
+The run checklist in `AGENTS.md` §0 controls only model suggestions and flow
+planning. Specialist commands, including unit and E2E test authoring, run only
+when the human explicitly invokes or requests them.

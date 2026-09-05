@@ -25,15 +25,17 @@ checks are explicit standalone commands: `/sage-ticket`, `/sage-review`,
 `/sage-unit-test`, `/sage-e2e-test`, and `/sage-security-review`; they are not
 checklist choices for `/sage`.
 
-The older five-choice checklist text below is historical reference only and is
-superseded by this contract.
+Test authoring is opt-in: `/sage` never creates, modifies, or plans test files.
+The human must explicitly invoke `/sage-unit-test` or `/sage-e2e-test`, or ask
+for the corresponding tests in plain language. Existing tests may still be run
+as validation.
 
 ## Command modes
 
 `/sage` has two modes:
 
-- `auto` — the agent decides which steps apply, shows the full checklist with recommendations, and proceeds without opening a picker.
-- `ask` — the agent shows the full checklist every time and uses the best structured picker the current environment exposes.
+- `auto` — the agent decides which of the two run options apply, shows them with recommendations, and proceeds without opening a picker.
+- `ask` — the agent shows the two run options every time and uses the best structured picker the current environment exposes.
 
 Do not use the old names `smart` or `always` in new config.
 
@@ -95,7 +97,7 @@ choices; it never applies to public contracts, trust boundaries, or risk gates.
 
 ## Core principles
 
-The operating principles are `AGENTS.md`'s pipeline (§0–§5) applied to this command: classify before acting · show all five choices with honest recommendations · never exceed the session ceiling · stay language-agnostic (detect the stack from real files) · reuse before writing · validate every change or say why you can't · capture only transferable knowledge · summarize with evidence. The steps below are the operational detail; `AGENTS.md` is authoritative wherever they overlap.
+The operating principles are `AGENTS.md`'s pipeline (§0–§5) applied to this command: classify before acting · show both run options with honest recommendations · never exceed the session ceiling · stay language-agnostic (detect the stack from real files) · reuse before writing · validate every change or say why you can't · capture only transferable knowledge · summarize with evidence. The steps below are the operational detail; `AGENTS.md` is authoritative wherever they overlap.
 
 ---
 
@@ -195,7 +197,7 @@ When unsure, choose the safer recommendation.
 
 ---
 
-### Step 0d — always keep the same five choices
+### Step 0d — always keep the same two run options
 
 `/sage` has only two run options: `suggest-switch-model` and `plan-flow`.
 Unit, E2E, and security work are explicit standalone commands and are never
@@ -203,32 +205,30 @@ selected by `/sage`.
 
 1. **suggest-switch-model** — ask the human before using a lower effort/model when the task is safely downshiftable; never switch silently.
 2. **plan-flow** — design and verify the flow before coding (`/sage-flow`)
-3. Specialist steps are invoked explicitly with `/sage-ticket`, `/sage-review`, `/sage-unit-test`, `/sage-e2e-test`, or `/sage-security-review`.
+Specialist steps are invoked explicitly with `/sage-ticket`, `/sage-review`,
+`/sage-unit-test`, `/sage-e2e-test`, or `/sage-security-review`. They are not
+run options and `/sage` must not recommend or invoke them automatically.
 
-Do not add a sixth option. Do not add `None`. Do not add `just answer`. Pure questions never reach this step.
+Do not add specialist commands, `None`, or `just answer` to this picker. Pure
+questions never reach this step.
 
 ---
 
 ### Step 0e — recommendation engine
 
-For each of the five choices, produce a status (`recommended` or `not recommended`) and a one-line reason tied to the detected signals.
+For each of the two run options, produce a status (`recommended` or `not recommended`) and a one-line reason tied to the detected signals.
 
-- **auto-switch-model** — recommend when model/reasoning selection is available and the task is non-trivial or benefits from different tiers across phases. Not recommended when the user pinned a model, there is no model selection, or the edit is fully mechanical. Keep it visible either way.
+- **suggest-switch-model** — recommend when model/reasoning selection is available and the task is non-trivial or benefits from different tiers across phases. Not recommended when the user pinned a model, there is no model selection, or the edit is fully mechanical. Keep it visible either way.
 - **plan-flow** — recommend when implementation needs an end-to-end design
   across a journey/trust boundary, changes a public contract or schema, touches
   auth/payment ownership, or has real architecture uncertainty. Do not recommend
   it merely because a task is `logic`, `multi-file`, a routine bug fix, or a
   dependency change. Not for fully specified mechanical or tiny docs-only edits.
-- **unit-test** — recommend when the change affects logic, validation, algorithms, parsing, data transforms, API behavior, DB queries, permissions, jobs, CLI output, service boundaries, bug fixes, or regression-prone behavior. Not for purely mechanical, visual-copy, or docs-only changes (unless the repo has doc tests that must compile).
-- **e2e-test** — recommend when the change affects an observable flow across boundaries (frontend/mobile/desktop journey, API request/response, CLI behavior, migration applied through the app, auth/session, checkout/payment, upload/download, queue/job, deploy/infra workflow, performance path, generated client/server contract). Not for isolated pure logic with adequate unit coverage and no external flow.
-- **security-review** — recommend when the change touches or may expose authn/authz, roles/permissions, sessions/cookies/JWT/OAuth/API keys, secrets/env, PII/money/billing, uploads/downloads/paths/deserialization/UGC, SQL/NoSQL/shell/template/SSRF, dependency upgrades, infra/CI/containers/networking/CORS/CSP, logging of sensitive data, or public APIs/webhooks. Not for isolated mechanical edits, pure styling, or docs-only with no sensitive content.
-
-Checklist recommendations and risk controls are related but not interchangeable.
-The checklist selects applicable specialist workflows; the driver table in
-`AGENTS.md` §1.4 assigns core controls that remain required even when no
-specialist applies or the human disables one. Never turn every HIGH risk into a
-security review, and never treat an unchecked specialist as removal of a core
-control.
+Run-option recommendations and risk controls are related but not interchangeable.
+The driver table in `AGENTS.md` §1.4 assigns core controls that remain required
+whether or not a specialist command is requested. When a control needs test
+evidence that does not already exist, report the gap and suggest the explicit
+test command; do not write the test during `/sage`.
 
 ---
 
@@ -242,25 +242,22 @@ matched `block` rule.
 
 ```text
 Checklist · mode:auto
-1. ✓ auto-switch-model — recommended: multi-phase backend change.
+1. ✓ suggest-switch-model — recommended: multi-phase backend change.
 2. ✓ plan-flow — recommended: API contract and database behavior may change.
-3. ✓ unit-test — recommended: validation logic changes.
-4. ~~e2e-test~~ — not recommended: no cross-boundary user flow changed.
-5. ✓ security-review — recommended: permissions are affected.
 Validation: required. Docs: update only if behavior, API, setup, or public usage changed.
 ```
 
-**Mode `ask`:** detect signals → show all five labels/reasons → use the best
+**Mode `ask`:** detect signals → show both labels/reasons → use the best
 picker capability callable in the current session → persist the selected
 checklist as defaults → continue after the answer. Never infer a picker from a
 provider name.
 
-1. Native multi-select available → show the five locked choices as checkboxes.
+1. Native multi-select available → show the two locked run options as checkboxes.
 2. Structured single-select only → offer `Run recommended` (recommended),
    `Use saved defaults`, or `Customize`. For `Customize`, ask on/off toggles in
    batches supported by the tool.
 3. No structured input → accept `recommended`, `defaults`, or only exceptions
-   such as `-e2e +security`. Accept numeric replies for backward compatibility,
+   such as `-plan-flow`. Accept numeric replies for backward compatibility,
    but do not make them the primary instruction.
 
 The full checklist remains visible before any compact picker:
@@ -268,11 +265,8 @@ The full checklist remains visible before any compact picker:
 ```text
 Task: <task in one line>. Checklist recommendations:
 
-1. auto-switch-model — recommended/not recommended: <reason>
+1. suggest-switch-model — recommended/not recommended: <reason>
 2. plan-flow — recommended/not recommended: <reason>
-3. unit-test — recommended/not recommended: <reason>
-4. e2e-test — recommended/not recommended: <reason>
-5. security-review — recommended/not recommended: <reason>
 ```
 
 If the environment is headless and cannot ask, behave like `auto` mode and state
@@ -327,7 +321,7 @@ Before coding, detect the repo's stack from real files. Do not assume JavaScript
 | Data/ML               | `notebooks/`, `dvc.yaml`, `mlflow`, `airflow/`, `dbt_project.yml`                             |
 | Docs                  | `README*`, `docs/`, `mkdocs.yml`, `docusaurus.config.*`                                       |
 
-Use the detected stack to choose roles, assets, validation, and test strategy.
+Use the detected stack to choose roles, assets, and validation commands.
 
 ---
 
@@ -412,8 +406,8 @@ Plan (session ceiling: <model or current agent> @ effort:<effort or unavailable>
 ── Phase 2 [sequential] ───────────────────────
   C. Implement compatible schema change      role: backend   tier: deep       depends on A+B
 ── Phase 3 [parallel] ─────────────────────────
-  D. Add regression tests                    role: qa        tier: standard   depends on C
-  E. Run migration dry-run and type checks   role: qa        tier: standard   depends on C
+  D. Run migration dry-run                   role: qa        tier: standard   depends on C
+  E. Run existing checks and type checks     role: qa        tier: standard   depends on C
 ```
 
 **Step 3b — progress.** Mark task starts/completions as they happen; report results without waiting for the whole phase. On a failure that affects correctness, report immediately and pause. For non-blocking failures, continue only if the remaining path is safe and say why. A new driver, wider target, or destructive effect invalidates the old assessment: stop the affected phase, reassess, add controls, and renew approval if the envelope changed.
@@ -445,7 +439,13 @@ exists.
 
 ## Write the code
 
-Keep changes scoped to the intent; reuse existing assets first; follow project naming/folder conventions; avoid unrelated cleanup and broad rewrites unless the plan approved them; preserve public contracts unless intentionally changing them; keep frontend/backend contracts aligned; protect data integrity and migration safety; keep the generated-code source of truth clear; add tests when `unit-test`/`e2e-test` applies; update docs only when behavior, setup, API, public usage, configuration, deployment, or team decisions changed.
+Keep changes scoped to the intent; reuse existing assets first; follow project naming/folder conventions; avoid unrelated cleanup and broad rewrites unless the plan approved them; preserve public contracts unless intentionally changing them; keep frontend/backend contracts aligned; protect data integrity and migration safety; keep the generated-code source of truth clear; update docs only when behavior, setup, API, public usage, configuration, deployment, or team decisions changed.
+
+Do not create, modify, or plan test files during `/sage`. Test authoring happens
+only after an explicit `/sage-unit-test`, `/sage-e2e-test`, or equivalent direct
+request. Running existing tests as validation does not grant permission to edit
+them. If existing evidence is insufficient, report the gap and the specialist
+command that would close it.
 
 ---
 
@@ -537,7 +537,7 @@ Before the final response, confirm internally: the request was classified
 correctly; pure questions skipped the checklist; code requests read/created
 `.sage-local.json` (legacy config migrated to version 3); mode was `auto` or
 `ask`; `auto` opened no picker; `ask` used the best callable picker capability;
-all five choices stayed visible with a recommendation label + reason;
+both run options stayed visible with a recommendation label + reason;
 interaction policy never weakened a safety gate; child handoffs continued when
 configured; role files were loaded/created; rules and assets were checked; the
 repo stack was detected from real files; risk drivers, confidence, required

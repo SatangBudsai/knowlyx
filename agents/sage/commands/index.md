@@ -14,9 +14,9 @@ practice.
 | `sage-flow.md`            | Build + verify an implementation-ready flow → `agents/sage/flows/` | checklist toggle `plan-flow`       |
 | `sage-ticket.md`          | Cut clear requirements into implementation tickets, then build them | on demand, after Grill/Flow        |
 | `sage-review.md`          | Review a change for correctness + requirement conformance          | on demand, after implementation    |
-| `sage-unit-test.md`       | Write unit tests that match the repo's stack                       | checklist toggle `unit-test`       |
+| `sage-unit-test.md`       | Write unit tests that match the repo's stack                       | explicit specialist command        |
 | `sage-e2e-test.md`        | Autonomously explore, encode, run, and validate real E2E behavior | explicit specialist command        |
-| `sage-security-review.md` | Review a change for real, exploitable security holes               | checklist toggle `security-review` |
+| `sage-security-review.md` | Review a change for real, exploitable security holes               | explicit specialist command        |
 | `sage-docs.md`            | Create/update a plain-Markdown flow doc → `docs/`                  | core `update-docs`                 |
 | `sage-learning.md`        | Learn this repo's patterns + research best practices for its stack | on demand                          |
 | `sage-refactoring-code.md` | Write/refactor readable code and schemas without speculative layers | on demand                         |
@@ -24,10 +24,10 @@ practice.
 | `sage-setting.md`         | View/change how `/sage` runs (mode + default steps, per machine)   | on demand                          |
 
 The route guard + run contract (`agents/sage/AGENTS.md` §0) are the dispatcher when `/sage` is invoked:
-routes fog to Grill or Wayfinder independently of checklist selection, then runs
-the applicable confirmed specialist commands after requirements are clear.
+routes fog to Grill or Wayfinder independently of checklist selection. Specialist
+commands run only when the human explicitly invokes or requests them.
 `automate-test` (run the existing suite and report the real output) is a core
-step of `/sage` itself, not a separate command.
+step of `/sage` itself, not a separate command and never permission to author tests.
 
 Two boundaries that must not blur:
 
