@@ -155,7 +155,7 @@ gap and name the appropriate explicit test command instead of authoring it
 inside `/sage`.
 
 **`/sage-ticket`** cuts clear requirements into ordered implementation tickets in
-`agents/sage/flows/<slug>-tickets.md` and then builds them. It accepts only
+`agents/sage/flows/<slug>/tickets.md` and then builds them. It accepts only
 `requirements-clear` or `design-clear` input; it is not a place to park fog, and
 its build tickets never mirror Wayfinder's decision tickets.
 
@@ -205,7 +205,8 @@ the first:**
 
 1. **Build the flow.** Write the full end-to-end flow/plan (actors → step by
    step → data → edge cases → security), complete and not abbreviated. Match the
-   depth of the reference flow doc — the flow doc (in `agents/sage/flows/`) is the
+   depth of the reference flow doc — the flow doc (in
+   `agents/sage/flows/<slug>/flow.md`) is the
    artifact, not a paragraph summary. **State an `Out of scope` list explicitly**
    — what this change deliberately does NOT touch — so the boundary is a decision,
    not an accident. A flow produces **decisions, not deliverables**: it is done
@@ -249,6 +250,23 @@ and never stop a flow early because the write-up got long. The only places
 brevity belongs are the closing summary block (§4b) and the knowledge files
 (§2–§3), which stay intentionally small. A short recap never replaces finishing
 the work in full.
+
+**Keep one flow workspace per effort.** Before Grill, Flow, Ticket, Review, or
+debugging writes a durable artifact, read and follow
+`agents/sage/flow-workspaces.md`. Reuse one stable slug and keep the effort's
+`index.md`, `spec.md`, `flow.md`, `tickets.md`, and focused evidence together at
+`agents/sage/flows/<slug>/`. Flat files directly under `agents/sage/flows/` are
+installer-managed reference flows or legacy artifacts; never bulk-move them.
+Migrate a legacy `<slug>-spec.md`, `<slug>-flow.md`, or `<slug>-tickets.md` only
+when that effort is next materially updated, leaving a pointer at the old path.
+
+For visual debugging, save the smallest useful before/after screenshot under
+the flow workspace and embed relevant images in the Markdown artifact being
+updated. Reuse that saved evidence before loading full browser state. Escalate
+to full browser/state debugging only when focused evidence cannot classify the
+failure, or an unresolved race, complex auth/session interaction, or
+cross-service mechanism requires wider inspection. Never capture secrets or
+production PII.
 
 ---
 
@@ -480,6 +498,13 @@ All team knowledge is Markdown under **`agents/sage/`**, organized by domain:
 ```text
 agents/sage/
   index.md                              # what this tree is (auto-readable)
+  flow-workspaces.md                    # effort-artifact + evidence layout
+  flows/<slug>/                         # one human-searchable effort workspace
+    index.md                            # entry point and artifact/evidence map
+    spec.md                             # resolved Grill/Wayfinder decisions
+    flow.md                             # implementation-ready design
+    tickets.md                          # ordered /sage-ticket build work
+    evidence/                           # indexed images/screenshots/traces/logs
   <domain>/
     index.md                            # table of contents for the domain
     context.md                          # canonical glossary (lazy; no implementation detail)

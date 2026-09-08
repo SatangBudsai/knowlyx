@@ -11,7 +11,7 @@ practice.
 | `sage.md`                 | The cognition pipeline — role, knowledge, risk controls, evidence  | automatically, before any change   |
 | `sage-grill.md`           | Resolve single-session fog + glossary/checkpoint → clear spec      | route `foggy-single-session`       |
 | `sage-wayfinder.md`       | Map and resolve multi-session fog as durable decision tickets      | route `large-multi-session`        |
-| `sage-flow.md`            | Build + verify an implementation-ready flow → `agents/sage/flows/` | checklist toggle `plan-flow`       |
+| `sage-flow.md`            | Build + verify design → `agents/sage/flows/<slug>/flow.md`          | checklist toggle `plan-flow`       |
 | `sage-ticket.md`          | Cut clear requirements into implementation tickets, then build them | on demand, after Grill/Flow        |
 | `sage-review.md`          | Review a change for correctness + requirement conformance          | on demand, after implementation    |
 | `sage-unit-test.md`       | Write unit tests that match the repo's stack                       | explicit specialist command        |
@@ -34,7 +34,7 @@ Two boundaries that must not blur:
 - **Tickets.** `/sage-wayfinder` owns _decision_ tickets, which remove fog and
   live under `agents/sage/wayfinders/`. `/sage-ticket` owns _implementation_
   tickets, which deliver the destination and live in
-  `agents/sage/flows/<slug>-tickets.md`. One backend each; never mirrored.
+  `agents/sage/flows/<slug>/tickets.md`. One backend each; never mirrored.
 - **Review.** `/sage-review` owns correctness and requirement conformance.
   `/sage-security-review` owns exploitable holes and
   `/sage-refactoring-code` owns readability. Each hands findings to the other

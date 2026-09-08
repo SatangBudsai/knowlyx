@@ -33,10 +33,12 @@ environment hides model/effort, state `current agent @ effort:unavailable`.
 
 Load the request's senior lens per `AGENTS.md` §1.1. Read, in order:
 
-1. `agents/sage/<domain>/index.md`
-2. `agents/sage/<domain>/context.md` when present
-3. `rules.md` and relevant `decisions/*.md`
-4. real source, schema, config, docs, and git facts for the request
+1. `agents/sage/flow-workspaces.md`, then a matching
+   `agents/sage/flows/<slug>/index.md` and its linked artifacts when present
+2. `agents/sage/<domain>/index.md`
+3. `agents/sage/<domain>/context.md` when present
+4. `rules.md` and relevant `decisions/*.md`
+5. real source, schema, config, docs, and git facts for the request
 
 **When the human supplies a document** — a PRD, a ticket, an API contract, a
 design file, a meeting transcript, a chat thread — read it in full first, and
@@ -80,7 +82,8 @@ Otherwise output `Route: foggy-single-session` and continue.
 
 ## Step 3 — Start the durable checkpoint before questioning
 
-Create `agents/sage/flows/<slug>-spec.md` **before the first question** when any
+Create the flow workspace `agents/sage/flows/<slug>/` and its `index.md`, then
+create `agents/sage/flows/<slug>/spec.md` **before the first question** when any
 condition is true:
 
 - more than one sharp decision is open;
@@ -112,6 +115,11 @@ After **every** human answer, update `Decisions`, `Still open`, `Out of scope`,
 rationale once in the spec; summaries link to it instead of copying it. A single
 small decision may remain chat-only, but write a spec at the end if it should
 outlive the conversation.
+
+When screenshots or other visual references inform a question or answer, store
+them through the workspace evidence layout and embed the relevant image in
+`spec.md` with a relative Markdown image link and useful alt text. Keep the full
+catalog in `evidence/index.md`; do not embed unrelated captures.
 
 ---
 
@@ -214,7 +222,7 @@ Update the domain index whenever `context.md` or a decision is added.
 - <explicit boundary>
 
 **Still open** · None — requirements-clear
-**Checkpoint** · <spec path | not written — single small decision>
+**Checkpoint** · <`agents/sage/flows/<slug>/spec.md` | not written — single small decision>
 **Required controls handed off** · <driver → control/evidence>
 **Knowledge** · [new | updated | none] `<path>` — <reason>
 ──────────────────────────────────────────────────

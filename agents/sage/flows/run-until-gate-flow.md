@@ -236,9 +236,9 @@ decision หรือ external mutation แทน Human และ child command 
 | Active parent run | current `/sage` execution | `running → gated → resumed → complete` |
 | Run frontier | current `/sage` execution | recompute after every closed/unblocked task |
 | Assumptions | active plan/spec/summary | record when auto-deciding internal reversible choice |
-| Grill checkpoint | `agents/sage/flows/<slug>-spec.md` | update after human answer |
+| Grill checkpoint | `agents/sage/flows/<slug>/spec.md` | update after human answer |
 | Wayfinder map/tickets | configured canonical backend | chart/claim/close/recompute until complete |
-| Flow state | `agents/sage/flows/<slug>-flow.md` | drafting → verified → design-clear/gated |
+| Flow state | `agents/sage/flows/<slug>/flow.md` | drafting → verified → design-clear/gated |
 | Role status | `agents/sage/roles/role-<lens>.md` | new AI role is proposed; human may approve |
 
 ## 5. API spec — N/A

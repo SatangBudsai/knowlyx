@@ -112,3 +112,16 @@ product interview.
 **Excludes:** re-interviewing resolved product decisions or coordinating
 multi-session Fog.
 **Related:** Requirements-clear, Design-clear.
+
+## Flow workspace
+
+**Definition:** The single human-searchable folder that keeps one effort's
+requirements, design, implementation tickets, and focused evidence together.
+**Invariants:** Grill, Flow, Ticket, Review, and testing reuse one stable slug;
+`index.md` is the entry point; durable images remain beside the effort and are
+embedded by relative link where they support a document.
+**Includes:** `spec.md`, `flow.md`, `tickets.md`, and indexed evidence when those
+artifacts exist.
+**Excludes:** reusable domain knowledge, Wayfinder decision-ticket storage,
+installer-managed reference flows, unrelated files already in `flows/`.
+**Related:** Grill, Flow, Requirements-clear, Design-clear.

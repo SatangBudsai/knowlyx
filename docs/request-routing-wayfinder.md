@@ -83,7 +83,8 @@ Grill ทำห้าสิ่งตามลำดับ:
 
 เมื่อมีมากกว่าหนึ่ง decision, เสี่ยงข้าม session, หลายระบบพึ่งคำตอบ หรือ human
 ต้องการ artifact Grill สร้าง
-`agents/sage/flows/<slug>-spec.md` **ก่อนคำถามแรก** แล้วอัปเดตหลังทุกคำตอบ:
+`agents/sage/flows/<slug>/spec.md` **ก่อนคำถามแรก** แล้วอัปเดตหลังทุกคำตอบ
+(พร้อม `index.md` ของ flow workspace):
 
 - Decisions
 - Still open

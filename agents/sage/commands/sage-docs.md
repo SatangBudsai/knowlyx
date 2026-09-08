@@ -82,6 +82,11 @@ Log: `Mode: CREATE · docs/<slug>.md` or `Mode: UPDATE · docs/<slug>.md · chan
 | Side effects     | event published, webhook fired, email sent                   |
 | Trust boundaries | who computes money / holds credentials / is believed         |
 
+Also inspect the matching `agents/sage/flows/<slug>/index.md` and
+`evidence/index.md` when they exist. Identify screenshots, diagrams, mockups, or
+other images that materially support this human document; do not treat unrelated
+files as decoration.
+
 **Classify the doc type** (shapes the section set — see the style-guide table):
 `api-flow` · `backend-logic` · `frontend` · `architecture` · `user-journey` ·
 `runbook` · `data-schema` · `general`.
@@ -109,6 +114,14 @@ Follow the skeleton in the style-guide, top-to-bottom:
 The ASCII overview and the step text must tell **the same story** — every hop in
 the diagram has a step below it, and vice versa.
 
+When relevant images exist, embed them beside the section they support using
+descriptive alt text and a relative Markdown path. Images remain in the
+canonical flow workspace; from `docs/<slug>.md`, use a path such as
+`../agents/sage/flows/<slug>/evidence/images/<file>` or
+`../agents/sage/flows/<slug>/evidence/screenshots/<file>`. Catalog new images in
+the workspace `evidence/index.md`. On UPDATE, verify every embedded image path,
+preserve relevant embeds, replace stale visuals, and remove broken references.
+
 ### 4 — Verify the flow ("should it really be this way?")
 
 Before finishing, review the doc as a skeptic, not its author (this is
@@ -127,14 +140,17 @@ Before finishing, review the doc as a skeptic, not its author (this is
 - [ ] every storage write / cache / external call / side effect is named
 - [ ] trust boundaries are correct and stated
 - [ ] every uncertainty is in §11, and the risky ones were asked
+- [ ] every relevant image is embedded near what it explains and every image path exists
 - [ ] passes the principles — answer-first, concise, concrete
 
 If any item fails → fill it in. Never output knowing something is missing.
 
 ### 6 — Write `docs/<slug>.md`
 
-Plain Markdown. ASCII diagrams in fenced code blocks. Set nothing HTML. Match the
-depth of the reference flow doc — complete, not summarized.
+Plain Markdown. ASCII diagrams in fenced code blocks. Set nothing HTML. Embed
+relevant images with relative Markdown syntax; do not duplicate their binary
+files outside the flow workspace. Match the depth of the reference flow doc —
+complete, not summarized.
 
 ### 7 — Summary (mandatory — the ONLY brief part)
 

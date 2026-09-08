@@ -38,6 +38,12 @@ and read top-to-bottom** like a senior engineer explaining the flow end-to-end.
    names throughout.
 5. **Multi-repo aware.** When a flow spans systems in different repos, every
    step/endpoint names **which system owns it** (see the Actors table).
+6. **Relevant images travel with the flow.** Keep canonical image files in the
+   matching `agents/sage/flows/<slug>/evidence/` workspace, catalog them in its
+   `index.md`, and embed them near what they explain with relative Markdown
+   links and descriptive alt text. Preserve valid embeds on update; replace
+   stale visuals and remove broken links. Do not add decorative or redundant
+   images.
 
 ---
 
@@ -81,6 +87,7 @@ in this order:
 ## 9. Security & concurrency    authz, idempotency, trust boundaries, amount/lock checks
 ## 10. Build checklist          per-system `- [ ]` list of what to create/change
 ## 11. Open questions           numbered — what must be confirmed before implementing
+## Visual evidence              optional, only when images clarify the flow
 ```
 
 Drop sections that don't apply (a `runbook` has no API spec; a `data-schema` is
@@ -204,6 +211,8 @@ not a wide table.
       credentials / be believed (webhook vs redirect)
 - [ ] every uncertain decision is written in §11 Open Questions, and the risky
       ones are asked to the human **before** coding
+- [ ] every embedded image is relevant, has useful alt text, and resolves to an
+      existing file in the matching flow workspace
 
 If any item fails → fix the doc. Never output a flow you know is incomplete or
 haven't challenged.

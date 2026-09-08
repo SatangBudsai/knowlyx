@@ -40,7 +40,8 @@ Output `Role: security [loaded|created]`.
 
 1. **Get the diff/target** — what changed, or the endpoint/flow to review. Read
    the real code and the data it handles. Prefer an existing
-   `agents/sage/flows/<slug>-flow.md` for the intended trust boundary.
+   `agents/sage/flows/<slug>/flow.md` for the intended trust boundary. Follow
+   `agents/sage/flow-workspaces.md` when only legacy flat artifacts exist.
 2. **Map untrusted input → dangerous sink.** For every entry point (request body,
    query, header, upload, webhook, message), trace where the data goes: a query,
    a shell/exec, a file path, a template, a redirect, a deserializer, an auth

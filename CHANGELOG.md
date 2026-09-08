@@ -4,6 +4,26 @@ All notable changes to Sage. Format: [Keep a Changelog](https://keepachangelog.c
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-09-08
+
+### Added
+
+- Flow workspaces now keep each effort's Grill spec, Flow design, implementation
+  tickets, and indexed debug evidence together under
+  `agents/sage/flows/<slug>/`. Relevant screenshots are embedded into updated
+  Markdown with relative links.
+
+### Changed
+
+- Visual debugging now captures the smallest useful before/after evidence first
+  and reuses it before loading full browser state. Full-state debugging is
+  reserved for evidence that remains ambiguous and unresolved race,
+  auth/session, or cross-service mechanisms.
+- Existing flat flow artifacts are not bulk-migrated. Sage discovers them for
+  backward compatibility and migrates an artifact on its next material update,
+  leaving a pointer at the legacy path. Installer-managed reference flows remain
+  flat and user flow workspaces remain untouched by updates.
+
 ## [1.5.0] — 2026-09-05
 
 ### Changed

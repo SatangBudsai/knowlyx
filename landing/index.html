@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#050505" />
-    <meta name="sage-version" content="v1.5.0" />
+    <meta name="sage-version" content="v1.6.0" />
+    <link rel="icon" href="logo.png" type="image/png" />
     <title>Sage - Make AI agents think before they code</title>
     <meta
       name="description"
@@ -1310,8 +1311,8 @@
           <span>Sage</span>
           <span
             class="version-badge"
-            aria-label="Current Sage version v1.5.0"
-            >v1.5.0</span
+            aria-label="Current Sage version v1.6.0"
+            >v1.6.0</span
           >
         </a>
         <div class="nav-right">
@@ -1980,6 +1981,74 @@ diffs in a PR. No HTML/CSS/JS.</pre
         </div>
       </section>
 
+      <section id="flow-workspaces">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Flow workspaces</div>
+              <h2>One effort. One place to look.</h2>
+            </div>
+            <p>
+              Grill decisions, implementation design, build tickets, and focused
+              debug evidence now stay together. Every command reuses the same
+              flow slug, so context survives handoffs without scattering files.
+            </p>
+          </div>
+
+          <div class="grid-2">
+            <div class="code-card">
+              <div class="panel-head">
+                <span>agents/sage/flows/checkout/</span>
+                <span style="color: var(--mint); font-size: 11px"
+                  >new in v1.6</span
+                >
+              </div>
+              <div class="install-body">
+                <pre>
+index.md                 # start here
+spec.md                  # /sage-grill
+flow.md                  # /sage-flow
+tickets.md               # /sage-ticket
+evidence/
+  index.md               # searchable catalog
+  images/                # diagrams + mockups
+  screenshots/           # before + after
+  traces/                # only when needed
+  logs/                  # focused extracts</pre
+                >
+              </div>
+            </div>
+
+            <div class="file-stack">
+              <div class="file">
+                <span class="file-label">Debug with less context</span>
+                <p>
+                  Capture the smallest useful failing state first. Reuse the
+                  saved screenshot, trace, or log before loading full browser
+                  state into the model.
+                </p>
+              </div>
+              <div class="file">
+                <span class="file-label">Escalate only when evidence stays ambiguous</span>
+                <p>
+                  Full-state debugging is reserved for unresolved races,
+                  auth/session interactions, cross-service failures, or focused
+                  evidence that still cannot classify the cause.
+                </p>
+              </div>
+              <div class="file">
+                <span class="file-label">Images render inside the docs</span>
+                <p>
+                  Relevant screenshots and diagrams are cataloged once, then
+                  embedded with relative links beside the decision, flow step,
+                  ticket, or human document they support.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section>
         <div class="wrap">
           <div class="section-head">
@@ -2072,8 +2141,8 @@ Reuse payments/idempotency.py; never roll your own.</pre
           <span>Sage - cognitive enforcement for AI software development</span>
           <span
             class="version-badge"
-            aria-label="Current Sage version v1.5.0"
-            >v1.5.0</span
+            aria-label="Current Sage version v1.6.0"
+            >v1.6.0</span
           >
         </div>
         <div class="foot-links">

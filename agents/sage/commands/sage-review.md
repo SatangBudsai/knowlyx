@@ -36,18 +36,23 @@ review a target you inferred silently.
 **Standard.** A finding needs something to be wrong _against_. Load whichever
 exist, in order:
 
-1. `agents/sage/flows/<slug>-tickets.md` — the acceptance criteria the change
+1. `agents/sage/flows/<slug>/tickets.md` — the acceptance criteria the change
    claimed to satisfy, and the controls each ticket owed
-2. `agents/sage/flows/<slug>-flow.md` — systems, API spec, state, error paths,
+2. `agents/sage/flows/<slug>/flow.md` — systems, API spec, state, error paths,
    security and concurrency
-3. `agents/sage/flows/<slug>-spec.md` — resolved product intent, canonical terms,
+3. `agents/sage/flows/<slug>/spec.md` — resolved product intent, canonical terms,
    scope and out-of-scope
-4. `agents/sage/<domain>/` — `context.md`, `rules.md`, `decisions/*.md`, with
+4. `agents/sage/flows/<slug>/evidence/index.md` — focused visual/trace/log
+   evidence linked by those artifacts
+5. `agents/sage/<domain>/` — `context.md`, `rules.md`, `decisions/*.md`, with
    each rule's `enforcement` (`block` · `warn` · `advise`, see `AGENTS.md` §5)
 
 When none of these exist, say so and review against the code's own contracts:
 callers, tests, schema, and public signatures. A review with no standard is an
 opinion — label it as such rather than dressing it up as a defect list.
+
+Read `agents/sage/flow-workspaces.md` first and use its legacy fallback when a
+canonical workspace does not yet exist.
 
 ---
 

@@ -196,7 +196,12 @@ Complete the map only when:
 - every decision gist links to its canonical resolution.
 
 Set map `status: complete`, then synthesize
-`agents/sage/flows/<slug>-spec.md` from resolved tickets without re-interviewing.
+`agents/sage/flows/<slug>/spec.md` from resolved tickets without re-interviewing.
+Create/update that workspace's `index.md` according to
+`agents/sage/flow-workspaces.md`.
+For backward compatibility, read a legacy
+`agents/sage/flows/<slug>-spec.md` when the canonical spec is absent and migrate
+it only on the next material write.
 The spec contains Problem, Success outcome, Canonical terms, Decisions,
 Out of scope, Evidence pointers, and `Open: none`. Hand it to `/sage-flow` for
 implementation design. Wayfinder never sends an active/incomplete map to Flow.

@@ -24,7 +24,8 @@ unknown.
 > [`agents/sage/docs-style-template.md`](agents/sage/docs-style-template.md)
 > (ASCII overview rules, "when → then", concrete-over-abstract). `/sage-flow` is
 > the **pre-code design** artifact (reuse-vs-build, cross-repo contracts) written
-> to `agents/sage/flows/`; `/sage-docs` is the **post-code** human doc in `docs/`.
+> to `agents/sage/flows/<slug>/flow.md`; `/sage-docs` is the **post-code** human
+> doc in `docs/`.
 
 ---
 
@@ -64,9 +65,12 @@ domain role when you reach that system's section and output the handoff line.
 Before writing a single step, discover what already exists. Source is
 authoritative — never infer an API, table, or contract from a name.
 
-If `agents/sage/flows/<slug>-spec.md` exists, read it first. Treat its resolved
+Read `agents/sage/flow-workspaces.md`, then locate the matching flow workspace.
+If `agents/sage/flows/<slug>/spec.md` exists, read it first. Treat its resolved
 product intent, canonical terms, scope, out-of-scope, and trade-offs as the input
-contract; do not re-interview them.
+contract; do not re-interview them. If only a legacy
+`agents/sage/flows/<slug>-spec.md` exists, follow the migrate-on-write rule in
+the workspace contract.
 
 1. **Identify the systems/actors.** Website/app, each backend service, each
    external provider, queues, cron, the user roles. Draw the trust boundary:
@@ -117,9 +121,10 @@ Interaction policy never weakens the central risk verdict.
 
 ## Step 4 — Write the flow document
 
-Write to `agents/sage/flows/<slug>-flow.md` (in the repo that owns the flow's
+Write to `agents/sage/flows/<slug>/flow.md` (in the repo that owns the flow's
 entry point; for a pure backend flow, the backend repo). Derive `<slug>` from the
-flow name. If the doc exists, update in place.
+flow name, reuse the same slug established by Grill, and create/update
+`index.md` as the workspace entry point. If the doc exists, update in place.
 
 **Language:** match the language the user is working in (the conversation / the
 existing docs). Keep technical tokens (method, path, table, field, status, key,
@@ -127,6 +132,13 @@ type/DTO names) in their real form — they never get translated.
 
 The document MUST contain these sections, in order. Adapt names to the flow, but
 never drop one without saying why it's N/A.
+
+When a relevant screenshot or diagram exists, store it under the workspace
+`evidence/` tree, catalog it in `evidence/index.md`, and embed it in the
+appropriate section of `flow.md` with a relative Markdown image link and
+descriptive alt text. On every update, preserve valid relevant embeds, add new
+evidence where it supports a decision or control, and remove or replace stale
+references. Do not embed every capture merely because it exists.
 
 1. **Header + design decisions** — one-paragraph summary, date, links to related
    `decisions/`. Call out any non-obvious design choice up front (e.g. "record is
@@ -228,7 +240,7 @@ ends at `/sage-review`.
 
 ## Step 5 — Capture knowledge (mandatory)
 
-The flow doc lives in `agents/sage/flows/`. Additionally capture the reusable
+The flow doc lives in `agents/sage/flows/<slug>/flow.md`. Additionally capture the reusable
 **pattern** (not the specifics) as a decision so the next flow benefits:
 
 - **A — New pattern** → `agents/sage/<domain>/decisions/<slug>.md`. Write the
@@ -253,7 +265,7 @@ Output as plain markdown (no code fence):
 **Model** · <model> @ effort:<effort>
 **Systems** · <list> | **Repos** · <list> | **Initial risk** · <LOW|MEDIUM|HIGH>
 
-**Flow doc** · `agents/sage/flows/<slug>-flow.md`
+**Flow doc** · `agents/sage/flows/<slug>/flow.md`
 
 **Shape**
 Summarise the journey in 2–3 sentences: entry → key steps → exit, naming the

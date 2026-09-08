@@ -121,7 +121,7 @@ condition ต่างกันจึงไม่ถามหรือเก็�
 **System:** Sage Grill + local filesystem
 
 - ถ้ามี open decisions มากกว่าหนึ่ง, เสี่ยงข้าม session หรือ user ต้องการ artifact
-  ให้สร้าง `agents/sage/flows/<slug>-spec.md` **ก่อนคำถามแรก**
+  ให้สร้าง `agents/sage/flows/<slug>/spec.md` **ก่อนคำถามแรก**
 - หลังทุก human answer ให้ update `Decided`, `Still open`, `Out of scope`,
   `Terms changed`, `Last updated`
 - Decision detail อยู่ใน spec ครั้งเดียว; summary link ไป spec ไม่ copy rationale
@@ -183,7 +183,7 @@ Complete เมื่อ:
 - destination ยังตรงกับ scope ปัจจุบัน
 - decisions-so-far link ไป source ticket ครบ
 
-จากนั้น synthesize `agents/sage/flows/<slug>-spec.md` โดยไม่ re-interview และส่ง
+จากนั้น synthesize `agents/sage/flows/<slug>/spec.md` โดยไม่ re-interview และส่ง
 ไป `/sage-flow` `/sage-flow` ห้ามเริ่มจาก map ที่ยังไม่ complete ถ้ามี active
 parent และ `continueAfterHandoff: true` ให้ส่ง `spec-ready` กลับ parent แล้ว
 เดินต่อทันที
@@ -194,11 +194,11 @@ parent และ `continueAfterHandoff: true` ให้ส่ง `spec-ready` �
 | --- | --- | --- |
 | Route | current Sage run | classify ก่อน design; reassess เมื่อ fog/size เปลี่ยน |
 | Domain terms | `agents/sage/<domain>/context.md` | create lazily; update immediately after agreement |
-| Grill checkpoint | `agents/sage/flows/<slug>-spec.md` | create before first question when checkpoint criteria match; update each answer |
+| Grill checkpoint | `agents/sage/flows/<slug>/spec.md` | create before first question when checkpoint criteria match; update each answer |
 | Wayfinder map | local `map.md` or configured tracker map | one canonical backend per effort |
 | Wayfinder ticket | local `tickets/<id>.md` or tracker child issue | open → claimed → closed/out-of-scope |
 | Run frontier | active parent `/sage` | recompute หลังทุก ticket/command/handoff/phase |
-| Flow | `agents/sage/flows/<slug>-flow.md` | created only from clear requirements |
+| Flow | `agents/sage/flows/<slug>/flow.md` | created only from clear requirements |
 
 Local map frontmatter/fields:
 

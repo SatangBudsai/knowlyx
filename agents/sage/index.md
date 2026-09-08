@@ -14,9 +14,13 @@ agents/sage/
   index.md                  # this file
   commands/<name>.md        # canonical command bodies — the tool adapters point here
   docs-style-template.md    # the /sage-docs + /sage-flow markdown style-guide
-  flows/<slug>-spec.md      # resolved product decisions from /sage-grill
-  flows/<slug>-flow.md      # implementation-ready flow docs from /sage-flow
-  flows/<slug>-tickets.md   # ordered implementation tickets from /sage-ticket
+  flow-workspaces.md        # canonical layout, evidence ladder, legacy migration
+  flows/<slug>/             # all artifacts for one effort
+    index.md                # human entry point and artifact/evidence map
+    spec.md                 # resolved product decisions from /sage-grill
+    flow.md                 # implementation-ready design from /sage-flow
+    tickets.md              # ordered implementation tickets from /sage-ticket
+    evidence/               # indexed screenshots, traces, and focused logs
   wayfinders/<slug>/        # durable map + decision tickets for multi-session fog
   roles/role-<lens>.md      # compact senior lenses — see AGENTS.md §2
   <domain>/                 # e.g. billing, search, your own domains
@@ -36,6 +40,12 @@ when an actionable direct instruction or evidenced bug fix proceeds immediately.
 `flows/installer-managed-assets-flow.md` defines the exact install/upgrade
 ownership and preservation contract. `flows/project-dna-flow.md` defines the
 specified (not yet shipped) Project DNA cognition data plane.
+
+Flat `flows/*.md` files are installer-managed reference flows or legacy user
+artifacts. New Grill/Flow/Ticket output uses `flows/<slug>/`; existing user files
+are migrated only when next updated, according to
+[`flow-workspaces.md`](flow-workspaces.md). The installer never recursively
+replaces or moves flow directories.
 
 `roles/` is Sage's library of compact senior lenses: Expertise, Pitfalls, and How
 I work. Approved roles are binding; newly AI-created roles start as

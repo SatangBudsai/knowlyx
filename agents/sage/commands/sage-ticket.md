@@ -19,7 +19,7 @@ decision back to `/sage-grill` or `/sage-wayfinder`, and mark the ticket blocked
 `/sage-ticket` accepts only:
 
 - `requirements-clear` from `/sage-grill` (with or without a spec file), or
-- `design-clear` from `/sage-flow` (`agents/sage/flows/<slug>-flow.md`), or
+- `design-clear` from `/sage-flow` (`agents/sage/flows/<slug>/flow.md`), or
 - a `clear-single-session` request whose intent, terms, scope, and trade-offs are
   already settled and verifiable in the repo.
 
@@ -52,10 +52,12 @@ environment hides model/effort, state `current agent @ effort:unavailable`.
 Load the request's senior lens per `AGENTS.md` §1.1 (`architect` when the work
 spans systems). Then read, in order, whichever exist:
 
-1. `agents/sage/flows/<slug>-flow.md` — the design contract
-2. `agents/sage/flows/<slug>-spec.md` — the resolved product decisions
-3. `agents/sage/<domain>/index.md`, `context.md`, `rules.md`, `decisions/*.md`
-4. the real source, schema, config, and tests the flow names
+1. `agents/sage/flow-workspaces.md`, then
+   `agents/sage/flows/<slug>/index.md` — the effort map
+2. `agents/sage/flows/<slug>/flow.md` — the design contract
+3. `agents/sage/flows/<slug>/spec.md` — the resolved product decisions
+4. `agents/sage/<domain>/index.md`, `context.md`, `rules.md`, `decisions/*.md`
+5. the real source, schema, config, and tests the flow names
 
 Treat the spec's decisions, canonical terms, scope, and out-of-scope as settled
 input. Do not re-interview them. Where the flow names an existing asset, open the
@@ -96,16 +98,18 @@ code you just read.
 
 ## Step 3 — Write the ticket file
 
-Write to `agents/sage/flows/<slug>-tickets.md` in the repo that owns the flow's
+Write to `agents/sage/flows/<slug>/tickets.md` in the repo that owns the flow's
 entry point. One file per effort — implementation tickets are read together for
 order and dependencies, so a folder-per-ticket would only hide the sequence. If
-the file exists, update it in place; never fork a second copy.
+the file exists, update it in place; never fork a second copy. Create/update the
+workspace `index.md`, reuse the upstream slug, and apply legacy migrate-on-write
+rules from `agents/sage/flow-workspaces.md`.
 
 ````markdown
 ---
 id: <slug>
 status: open | building | complete
-source: agents/sage/flows/<slug>-flow.md | agents/sage/flows/<slug>-spec.md | request
+source: agents/sage/flows/<slug>/flow.md | agents/sage/flows/<slug>/spec.md | request
 updated: <ISO-8601>
 ---
 
@@ -143,6 +147,11 @@ updated: <ISO-8601>
 
 Keep rationale where it already lives. A ticket links to the flow section or the
 decision file; it never copies the argument.
+
+When a screenshot demonstrates acceptance, a failure, or a completed visible
+outcome, store and catalog it under the same workspace and embed the relevant
+image beside that ticket's evidence using a relative Markdown image link. Keep
+images out of tickets when they do not help a human verify the outcome.
 
 ---
 
@@ -206,7 +215,7 @@ Slicing itself is rarely knowledge. Capture only a genuinely reusable pattern pe
 **Model** · <model> @ effort:<effort>
 **Mode** · cut | build-wave | complete
 **Source** · <flow/spec path, or "request — clear-single-session">
-**Tickets** · `agents/sage/flows/<slug>-tickets.md` — <n> tickets
+**Tickets** · `agents/sage/flows/<slug>/tickets.md` — <n> tickets
 
 **Cut**
 

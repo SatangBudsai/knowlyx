@@ -153,6 +153,24 @@ it, this is the spine:
        └─ too foggy for one session? ──▶ /sage-wayfinder ──▶ back to /sage-flow
 ```
 
+All durable artifacts for that lifecycle stay together under one searchable
+flow workspace:
+
+```text
+agents/sage/flows/<slug>/
+  index.md
+  spec.md
+  flow.md
+  tickets.md
+  evidence/{index.md,images/,screenshots/,traces/,logs/}
+```
+
+`/sage-grill`, `/sage-flow`, and `/sage-ticket` reuse the same slug. Relevant
+images are embedded into the Markdown they support and cataloged in the evidence
+index. Flat files under `agents/sage/flows/` remain reference/legacy files and
+are migrated only when next updated, so installation never moves user content
+in bulk.
+
 | Step | Command        | Ends when                                                          |
 | ---- | -------------- | ------------------------------------------------------------------ |
 | 1    | `/sage-grill`  | `requirements-clear` — no open decision changes the implementation  |
@@ -277,7 +295,7 @@ Wayfinder unless new code/schema evidence contradicts them.
 **`/sage-ticket`** — cut clear requirements into build work, then build it
 
 It turns a `requirements-clear` or `design-clear` handoff into ordered
-implementation tickets in `agents/sage/flows/<slug>-tickets.md` — each one a
+implementation tickets in `agents/sage/flows/<slug>/tickets.md` — each one a
 single verifiable outcome sized for one session, with its dependencies,
 acceptance criteria in when → then form, the required controls it must produce
 evidence for, and the exact command that proves it. Then it works the frontier:

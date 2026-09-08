@@ -10,6 +10,10 @@ The installer updates only the exact Sage-owned paths listed in
 
 Everything else remains user/team-owned: custom knowledge domains, role edits,
 non-managed flows, `docs/`, `.sage-local.json`, and unrelated adapter files.
+This includes every generated `agents/sage/flows/<slug>/` workspace and its
+evidence. The installer may add/update the exact managed
+`agents/sage/flow-workspaces.md` contract, but never recursively replaces the
+`flows/` directory.
 
 Project DNA is currently a specification, not a shipped runtime. Its installed
 technical contract is

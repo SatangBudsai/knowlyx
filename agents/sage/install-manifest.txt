@@ -5,6 +5,7 @@ agents/sage/install-manifest.txt
 agents/sage/adapter-manifest.txt
 agents/sage/installed-assets.md
 agents/sage/docs-style-template.md
+agents/sage/flow-workspaces.md
 agents/sage/flows/installer-managed-assets-flow.md
 agents/sage/flows/pre-action-clarification-flow.md
 agents/sage/flows/project-dna-flow.md
@@ -19,6 +20,7 @@ agents/sage/protocol/decisions/continue-until-material-gate.md
 agents/sage/protocol/decisions/detect-picker-capability-not-provider.md
 agents/sage/protocol/decisions/install-only-exact-managed-paths.md
 agents/sage/protocol/decisions/keep-context-separate-from-decisions.md
+agents/sage/protocol/decisions/organize-effort-artifacts-by-flow.md
 agents/sage/protocol/decisions/risk-drivers-own-controls.md
 agents/sage/protocol/decisions/route-by-fog-and-session-span.md
 agents/sage/sage-product/index.md

@@ -57,6 +57,8 @@ one objective, and its run criteria—not the whole repository.
 
 Open `agents/sage/roles/role-qa.md` and adopt it according to `AGENTS.md`. Anchor
 all knowledge and output paths to the repository that owns the flow entry point.
+Read `agents/sage/flow-workspaces.md` and resolve or create the matching
+`agents/sage/flows/<slug>/` workspace before persisting debug evidence.
 
 Apply the central Sage route and risk policy. A request to create E2E coverage
 authorizes safe local/sandbox exploration, test files, conventional dev-only test
@@ -79,8 +81,10 @@ Inspect before planning:
    runner, language, selectors, auth setup, base URL, and file conventions.
 2. **Application stack** — manifests, routes/pages/endpoints, dev/preview command,
    services, database, and external dependencies. Do not infer from filenames.
-3. **Flow contract** — prefer `agents/sage/flows/<slug>-flow.md`, product docs,
-   acceptance criteria, and executable behavior. Trace the actual entry and exits.
+3. **Flow contract** — prefer `agents/sage/flows/<slug>/flow.md`, then its
+   workspace `spec.md` and `tickets.md`, product docs, acceptance criteria, and
+   executable behavior. Trace the actual entry and exits; fall back to legacy
+   flat flow artifacts only as defined by `flow-workspaces.md`.
 4. **State prerequisites** — seed/factory, test account and roles, auth/session,
    required env vars, sandbox providers, data isolation, and cleanup/reset path.
 5. **Available observation tools** — interactive in-app browser, signed-in Chrome
@@ -229,14 +233,26 @@ skipping a branch is never a classification or a valid fix by itself.
 Use concise runner output, the first relevant stack trace, screenshot/trace,
 application log, console error, and network request before loading wider context.
 
+Follow the workspace evidence ladder. For a reproducible visual failure, save
+one focused `before` screenshot under
+`agents/sage/flows/<slug>/evidence/screenshots/` and catalog it immediately in
+`evidence/index.md`. After a visible fix, save a focused `after` screenshot.
+Embed each relevant image with a relative Markdown link in the `spec.md`,
+`flow.md`, or `tickets.md` section it proves when that document is updated.
+Reuse these saved artifacts instead of repeatedly reading the same browser state.
+For a non-visual failure or unsafe capture, record the focused log/trace evidence
+or the reason no screenshot was stored.
+
 - Obvious deterministic test failure → fix locally or route to a bounded worker.
 - Ambiguous test-versus-application failure → coordinator inspects the relevant
   flow and artifacts.
 - Runner evidence insufficient and browser available → reproduce only the failing
   step in the real browser; inspect relevant UI/accessibility, console, network,
   redirects, and state.
-- Race, complex auth/session, or cross-service failure still unresolved → use the
-  strongest model allowed by the session ceiling and narrow the evidence passed.
+- Focused reproduction still cannot classify the failure, or a race, complex
+  auth/session, or cross-service failure remains unresolved → record why wider
+  inspection is needed, then use full browser/state debugging and the strongest
+  model allowed by the session ceiling while narrowing the evidence passed.
 
 Summarize discoveries before any handoff. Never send the whole repository, huge
 logs, unrelated files, or full browser state when a small slice is sufficient.
@@ -253,6 +269,8 @@ A flow is complete only when:
 - no unnecessary fragile wait, selector, retry, mock, or application change remains;
 - test data is isolated and cleaned up or reset deterministically;
 - every parent-run risk control owned by E2E maps to an exact assertion/artifact;
+- every persisted screenshot/trace/log is cataloged in the flow workspace and
+  every relevant document update embeds the evidence it relies on;
 - skipped or blocked scenarios and remaining risks are explicit.
 
 Continue autonomously until these criteria are met or a material gate from Step 1
@@ -291,6 +309,8 @@ Output as plain Markdown:
 
 **Control evidence**
 - <driver → assertion/artifact, or gap>
+
+**Flow evidence** · `agents/sage/flows/<slug>/evidence/index.md`
 
 **Residual risk** · <LOW|MEDIUM|HIGH> — <what remains>
 **Knowledge** · [new | updated | none] `<path>` — <pattern or reason>
